@@ -118,50 +118,90 @@ export default function RoomPage() {
         setLoading(true);
         setConnectionStatus(retry > 0 ? `bağlanıyor (deneme ${retry}/${maxRetries})` : 'bağlanıyor');
         
-        console.log("Firebase bağlantısı başlatılıyor...");
-        console.log("RoomID:", roomId);
-        console.log("Firebase config:", JSON.stringify({
+        console.log("[Firebase] Bağlantı başlatılıyor...");
+        console.log("[Firebase] RoomID:", roomId);
+        console.log("[Firebase] Firebase config:", JSON.stringify({
           databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "hardcoded kullanılıyor",
           projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "hardcoded kullanılıyor"
         }));
         
         // Database null kontrolü
         if (!database) {
-          console.error("Firebase database null! Firebase bağlantısı kurulamadı.");
-          setError("Firebase veritabanı bağlantısı başlatılamadı. Lütfen sayfayı yenileyin.");
+          console.error("[Firebase] Database null! Firebase bağlantısı kurulamadı.");
+          setError("Firebase veritabanı bağlantısı başlatılamadı. Tarayıcı konsolunu kontrol edin ve sayfayı yenileyin.");
           setConnectionStatus('kritik hata');
+          setLoading(false);
+          return;
+        }
+        
+        // Test bağlantısı yapalım
+        try {
+          console.log("[Firebase] Test bağlantısı kontrol ediliyor...");
+          const testRef = ref(database, '.info/connected');
+          
+          // 10 saniye içinde bağlantı kurulamazsa hata ver
+          const timeoutPromise = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error("Bağlantı zaman aşımı")), 10000);
+          });
+          
+          const connectionPromise = new Promise((resolve) => {
+            const unsub = onValue(testRef, (snapshot) => {
+              if (snapshot.val() === true) {
+                console.log("[Firebase] Test bağlantısı başarılı!");
+                unsub();
+                resolve(true);
+              }
+            });
+          });
+          
+          // Yarış koşulu - hangisi önce gerçekleşirse
+          await Promise.race([connectionPromise, timeoutPromise])
+            .catch(error => {
+              console.error("[Firebase] Test bağlantısı başarısız:", error);
+              throw new Error("Firebase bağlantı testi başarısız: " + error.message);
+            });
+        } catch (testError) {
+          console.error("[Firebase] Test bağlantı hatası:", testError);
+          if (retry < maxRetries) {
+            console.log(`[Firebase] Test bağlantısı başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`);
+            setTimeout(() => fetchMessages(retry + 1), 2000);
+            return;
+          }
+          
+          setError("Firebase sunucusuna ulaşılamıyor. Lütfen internet bağlantınızı kontrol edin ve sayfayı yenileyin.");
+          setConnectionStatus('bağlantı hatası');
           setLoading(false);
           return;
         }
         
         // Firebase referansını oluştur
         messagesRef.current = ref(database, `rooms/${roomId}/messages`);
-        console.log("Oda referansı oluşturuldu:", `rooms/${roomId}/messages`);
+        console.log("[Firebase] Oda referansı oluşturuldu:", `rooms/${roomId}/messages`);
         
         // İlk verileri çek
         try {
-          console.log("İlk veri çekme işlemi başlatılıyor...");
+          console.log("[Firebase] İlk veri çekme işlemi başlatılıyor...");
           
           if (!messagesRef.current) {
             throw new Error("Mesaj referansı oluşturulamadı!");
           }
           
           const snapshot = await get(messagesRef.current);
-          console.log("Snapshot alındı:", snapshot.exists() ? "Veri var" : "Veri yok");
+          console.log("[Firebase] Snapshot alındı:", snapshot.exists() ? "Veri var" : "Veri yok");
           
           if (snapshot.exists()) {
             setConnectionStatus('bağlandı');
-            console.log("Oda verisi başarıyla alındı:", snapshot.val());
+            console.log("[Firebase] Oda verisi başarıyla alındı:", snapshot.val());
           } else {
-            console.log("Oda henüz mesaj içermiyor, ama bağlantı başarılı.");
+            console.log("[Firebase] Oda henüz mesaj içermiyor, ama bağlantı başarılı.");
             setConnectionStatus('bağlandı (boş oda)');
           }
         } catch (getError) {
-          console.error("İlk veri çekme hatası:", getError);
+          console.error("[Firebase] İlk veri çekme hatası:", getError);
           setError("Veri çekme hatası: " + JSON.stringify(getError));
           
           if (retry < maxRetries) {
-            console.log(`Veri çekme başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`);
+            console.log(`[Firebase] Veri çekme başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`);
             setTimeout(() => fetchMessages(retry + 1), 2000);
             return;
           }
@@ -173,16 +213,16 @@ export default function RoomPage() {
         
         // Gerçek zamanlı güncelleme dinleyicisi ekle
         try {
-          console.log("Gerçek zamanlı veri dinleyicisi ekleniyor...");
+          console.log("[Firebase] Gerçek zamanlı veri dinleyicisi ekleniyor...");
           unsubscribe = onValue(messagesRef.current, (snapshot) => {
-            console.log("onValue callback çağrıldı - veri alındı");
+            console.log("[Firebase] onValue callback çağrıldı - veri alındı");
             setLoading(false);
             
             const data = snapshot.val();
             const loadedMessages: Message[] = [];
             
             if (data) {
-              console.log("Alınan veri:", JSON.stringify(data).substring(0, 100) + "...");
+              console.log("[Firebase] Alınan veri:", JSON.stringify(data).substring(0, 100) + "...");
               Object.keys(data).forEach((key) => {
                 loadedMessages.push({
                   id: key,
@@ -204,11 +244,11 @@ export default function RoomPage() {
                 if (lastMessage.sender !== nickname) {
                   try {
                     // Basit ses bildirimi
-                    const audio = new Audio('/message.mp3');
+                    const audio = new Audio('/sounds/message.mp3');
                     audio.volume = 0.5;
-                    audio.play().catch(e => console.log('Ses çalma hatası:', e));
+                    audio.play().catch(e => console.log('[Firebase] Ses çalma hatası:', e));
                   } catch (audioError) {
-                    console.log('Ses bildirimi çalınamadı:', audioError);
+                    console.log('[Firebase] Ses bildirimi çalınamadı:', audioError);
                   }
                 }
               }
@@ -220,12 +260,12 @@ export default function RoomPage() {
               }
             } else {
               // Mesaj yoksa yükleme durumunu kapat
-              console.log("Oda boş, mesaj yok");
+              console.log("[Firebase] Oda boş, mesaj yok");
               setLoading(false);
               setConnectionStatus('bağlı (boş oda)');
             }
           }, (errorObject) => {
-            console.error('Firebase veri okuma hatası:', errorObject);
+            console.error('[Firebase] Veri okuma hatası:', errorObject);
             setError('Mesajları alma sırasında bir hata oluştu: ' + errorObject.message);
             setLoading(false);
             setConnectionStatus('bağlantı hatası');
@@ -233,7 +273,7 @@ export default function RoomPage() {
             // Hata durumunda yeniden deneme
             if (retryCount < maxRetries) {
               retryCount++;
-              console.log(`Bağlantı hatası, yeniden deneniyor (${retryCount}/${maxRetries})...`);
+              console.log(`[Firebase] Bağlantı hatası, yeniden deneniyor (${retryCount}/${maxRetries})...`);
               setTimeout(() => {
                 if (unsubscribe) {
                   unsubscribe();
@@ -244,7 +284,7 @@ export default function RoomPage() {
             }
           });
         } catch (listenerError: any) {
-          console.error("Veri dinleyicisi ekleme hatası:", listenerError);
+          console.error("[Firebase] Veri dinleyicisi ekleme hatası:", listenerError);
           setError("Gerçek zamanlı veri dinleme başarısız oldu: " + (listenerError?.message || 'Bilinmeyen hata'));
           setLoading(false);
           setConnectionStatus('bağlantı hatası');
