@@ -11,9 +11,15 @@ import {
   Heading,
   Content,
   Tile,
-  Modal
+  Modal,
+  Header,
+  HeaderName
 } from '@carbon/react';
-import { Chat } from '@carbon/icons-react';
+import { 
+  Chat, 
+  Add, 
+  Login
+} from '@carbon/icons-react';
 
 export default function Home() {
   const [roomId, setRoomId] = useState('');
@@ -82,38 +88,74 @@ export default function Home() {
   };
 
   return (
-    <div className="home-container">
-      <div className="chat-simple-container">
-        <div className="chat-simple-content">
-          <div className="chat-logo">
-            <Chat size={24} />
-          </div>
+    <div className="cds--g100 home-page" data-carbon-theme="g100">
+      {/* Carbon Header */}
+      <Header aria-label="Anonim Chat" className="home-header">
+        <HeaderName prefix="">
+          <Chat size={20} /> Anonim Chat
+        </HeaderName>
+      </Header>
+      
+      {/* Ana İçerik - Carbon Grid Yapısı */}
+      <Content>
+        <Grid fullWidth className="home-grid">
+          <Column lg={8} md={6} sm={4} className="welcome-column">
+            <Tile className="welcome-tile">
+              <div className="welcome-content">
+                <div className="welcome-icon">
+                  <Chat size={42} />
+                </div>
+                
+                <Heading className="welcome-title">
+                  Anonim Sohbet Odalarına Hoş Geldiniz
+                </Heading>
+                
+                <p className="welcome-description cds--body-long-01">
+                  Hızlı ve kolay şekilde anonim sohbet odalarına katılın. 
+                  Kullanıcı adı otomatik oluşturulur, gizlilik korunur ve kayıt gerektirmez.
+                </p>
+                
+                <div className="welcome-actions">
+                  <Button 
+                    onClick={handleCreateRoom} 
+                    renderIcon={Add}
+                    size="lg"
+                    className="welcome-button"
+                  >
+                    Yeni Oda Oluştur
+                  </Button>
+                  
+                  <div className="welcome-divider">veya</div>
+                  
+                  <Button 
+                    onClick={() => setIsModalOpen(true)}
+                    kind="secondary"
+                    renderIcon={Login}
+                    size="lg"
+                    className="welcome-button"
+                  >
+                    Mevcut Odaya Katıl
+                  </Button>
+                </div>
+              </div>
+            </Tile>
+          </Column>
           
-          <h1 className="chat-title">Anonim Chat</h1>
-          
-          <p className="chat-description">
-            Hızlı ve kolay şekilde anonim sohbet odalarına katılın. 
-            Kullanıcı adı otomatik oluşturulur, sadece bir oda ID ile bağlanın!
-          </p>
-          
-          <div className="chat-actions">
-            <Button 
-              onClick={handleCreateRoom} 
-              className="chat-button"
-            >
-              Oda Oluştur
-            </Button>
-            
-            <Button 
-              onClick={() => setIsModalOpen(true)}
-              kind="secondary"
-              className="chat-button"
-            >
-              Odaya Katıl
-            </Button>
-          </div>
-        </div>
-      </div>
+          <Column lg={8} md={2} sm={0} className="features-column">
+            <Tile className="features-tile">
+              <h3 className="features-title">Özelllikler</h3>
+              <ul className="features-list">
+                <li>Gizli ve anonim sohbet</li>
+                <li>Kayıt veya kullanıcı hesabı gerektirmez</li>
+                <li>Otomatik kullanıcı adı oluşturma</li>
+                <li>Benzersiz oda bağlantısı</li>
+                <li>Gerçek zamanlı mesajlaşma</li>
+                <li>Tamamen ücretsiz</li>
+              </ul>
+            </Tile>
+          </Column>
+        </Grid>
+      </Content>
       
       {/* Odaya Katıl Modalı */}
       <Modal

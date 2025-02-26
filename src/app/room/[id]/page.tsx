@@ -14,14 +14,18 @@ import {
   HeaderGlobalAction,
   HeaderGlobalBar,
   Tile,
-  SkeletonText
+  SkeletonText,
+  Grid,
+  Column,
+  Content
 } from '@carbon/react';
 import { 
   Copy, 
   Send,
   ChatBot,
   Information,
-  UserAvatar
+  UserAvatar,
+  ArrowLeft
 } from '@carbon/icons-react';
 import { database } from '@/lib/firebase';
 
@@ -273,7 +277,7 @@ export default function RoomPage() {
         unsubscribe();
       }
     };
-  }, [roomId, searchParams, router]);
+  }, [roomId, searchParams, router, messages.length]);
   
   // Yeni mesaj geldiğinde aşağı kaydır
   useEffect(() => {
@@ -389,18 +393,26 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="cds--g100 chat-container">
-      {/* Basitleştirilmiş Header */}
-      <Header aria-label="Anonim Chat" data-carbon-theme="g100">
+    <div className="cds--g100 chat-page" data-carbon-theme="g100">
+      {/* Carbon Header */}
+      <Header aria-label="Anonim Chat" className="chat-header">
         <HeaderName onClick={goToHome} prefix="">
-          <ChatBot size={20} /> Anonim Chat <Tag className="room-tag" type="blue">Oda: {roomId}</Tag>
+          <Button
+            kind="ghost"
+            renderIcon={ArrowLeft}
+            iconDescription="Ana Sayfaya Dön"
+            hasIconOnly
+            size="sm"
+            className="back-button"
+          />
+          <ChatBot size={20} /> Anonim Chat 
+          <Tag className="room-tag" type="blue">Oda: {roomId}</Tag>
         </HeaderName>
         
         <HeaderGlobalBar>
           <HeaderGlobalAction
             aria-label="Bağlantı Durumu"
             isActive={false}
-            tooltipAlignment="center"
           >
             <Tag type={connectionStatus.includes('hata') ? 'red' : connectionStatus.includes('bağlanıyor') ? 'purple' : 'green'} className="status-tag">
               {connectionStatus}
@@ -409,91 +421,104 @@ export default function RoomPage() {
         </HeaderGlobalBar>
       </Header>
       
-      {/* Basitleştirilmiş Chat İçeriği */}
-      <main className="chat-content">
-        {error && (
-          <ToastNotification
-            kind="error"
-            title="Hata"
-            subtitle={error}
-            onClose={() => setError(null)}
-            timeout={5000}
-            className="error-notification"
-          />
-        )}
-        
-        {copySuccess && (
-          <ToastNotification
-            kind="success"
-            title="Başarılı"
-            subtitle="Bağlantı kopyalandı"
-            timeout={3000}
-            className="copy-notification"
-          />
-        )}
-        
-        {/* Oda Bilgisi */}
-        <Tile className="room-info-tile">
-          <div className="room-info-content">
-            <div className="room-title">
-              <h3>Oda: {roomId}</h3>
-              <Tag type={connectionStatus.includes('hata') ? 'red' : connectionStatus.includes('bağlanıyor') ? 'purple' : 'green'}>
-                {connectionStatus}
-              </Tag>
+      {/* Ana içerik - Carbon Grid ve Sütun Yapısı */}
+      <Content>
+        <Grid fullWidth className="chat-grid">
+          {/* Bildirimler */}
+          {error && (
+            <Column lg={16} md={8} sm={4}>
+              <ToastNotification
+                kind="error"
+                title="Hata"
+                subtitle={error}
+                onClose={() => setError(null)}
+                timeout={5000}
+                className="error-notification"
+              />
+            </Column>
+          )}
+          
+          {copySuccess && (
+            <Column lg={16} md={8} sm={4}>
+              <ToastNotification
+                kind="success"
+                title="Başarılı"
+                subtitle="Bağlantı kopyalandı"
+                timeout={3000}
+                className="copy-notification"
+              />
+            </Column>
+          )}
+          
+          {/* Oda Bilgisi */}
+          <Column lg={16} md={8} sm={4}>
+            <Tile className="room-info-tile">
+              <div className="room-info-content">
+                <div className="room-title">
+                  <h3>Oda: {roomId}</h3>
+                  <Tag type={connectionStatus.includes('hata') ? 'red' : connectionStatus.includes('bağlanıyor') ? 'purple' : 'green'}>
+                    {connectionStatus}
+                  </Tag>
+                </div>
+                <div className="room-link-container">
+                  <TextInput
+                    id="room-link"
+                    labelText="Oda bağlantısı"
+                    value={roomLink}
+                    readOnly
+                    light
+                    size="sm"
+                    className="room-link-input"
+                  />
+                  <Button 
+                    hasIconOnly 
+                    renderIcon={Copy} 
+                    iconDescription="Kopyala" 
+                    onClick={handleCopyLink}
+                    kind="primary"
+                    size="sm"
+                  />
+                </div>
+              </div>
+            </Tile>
+          </Column>
+          
+          {/* Mesaj Alanı - Tüm genişliği kapla */}
+          <Column lg={16} md={8} sm={4} className="messages-column">
+            <div className="messages-container">
+              {renderMessages()}
+              <div ref={messagesEndRef} />
             </div>
-            <div className="room-link-container">
+          </Column>
+          
+          {/* Mesaj Gönderme Alanı */}
+          <Column lg={16} md={8} sm={4}>
+            <div className="chat-input-container">
               <TextInput
-                id="room-link"
-                labelText="Oda bağlantısı"
-                value={roomLink}
-                readOnly
-                light
-                size="sm"
-                className="room-link-input"
+                id="message-input"
+                labelText="Mesaj"
+                hideLabel
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Mesajınızı yazın..."
+                onKeyDown={handleKeyDown}
+                size="lg"
+                className="message-input"
               />
               <Button 
-                hasIconOnly 
-                renderIcon={Copy} 
-                iconDescription="Kopyala" 
-                onClick={handleCopyLink}
+                renderIcon={Send} 
+                onClick={handleSendMessage} 
+                disabled={sendingMessage || message.trim() === ''}
                 kind="primary"
-                size="sm"
-              />
+                size="lg"
+                className="send-button"
+              >
+                {sendingMessage ? 'Gönderiliyor...' : 'Gönder'}
+              </Button>
             </div>
-          </div>
-        </Tile>
-        
-        {/* Mesaj Alanı */}
-        <div className="messages-container">
-          {renderMessages()}
-          <div ref={messagesEndRef} />
-        </div>
-        
-        {/* Mesaj Gönderme Alanı */}
-        <div className="chat-input-container">
-          <TextInput
-            id="message-input"
-            labelText="Mesaj"
-            hideLabel
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Mesajınızı yazın..."
-            onKeyDown={handleKeyDown}
-            size="lg"
-            className="message-input"
-          />
-          <Button 
-            renderIcon={Send} 
-            onClick={handleSendMessage} 
-            disabled={sendingMessage || message.trim() === ''}
-            kind="primary"
-            size="lg"
-            className="send-button"
-          >
-            {sendingMessage ? 'Gönderiliyor...' : 'Gönder'}
-          </Button>
-        </div>
-      </main>
+          </Column>
+        </Grid>
+      </Content>
     </div>
   );
 } 

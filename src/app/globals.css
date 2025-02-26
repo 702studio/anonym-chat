@@ -140,12 +140,44 @@ main {
 }
 
 /* Modern Chat Container Styles - Carbon 2x Grid System */
-.chat-container {
+.chat-page {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
   background-color: var(--cds-background);
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-header {
+  background-color: var(--cds-background);
+  border-bottom: 1px solid var(--cds-border-strong-01);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.back-button {
+  margin-right: var(--cds-spacing-03);
+  transition: transform 110ms ease;
+}
+
+.back-button:hover {
+  transform: translateX(-2px);
+}
+
+.room-tag {
+  margin-left: var(--cds-spacing-03);
+}
+
+.status-tag {
+  margin-right: var(--cds-spacing-03);
+}
+
+.chat-grid {
+  height: calc(100vh - 48px); /* Tam ekran eksi header yüksekliği */
+  overflow: hidden;
 }
 
 .chat-content {
@@ -158,6 +190,7 @@ main {
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
+  height: 100%;
 }
 
 .room-info-tile {
@@ -196,6 +229,14 @@ main {
   flex: 1;
 }
 
+.messages-column {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--cds-spacing-05);
+}
+
 .messages-container {
   flex: 1;
   overflow-y: auto;
@@ -206,6 +247,7 @@ main {
   background-color: var(--cds-layer-01);
   border-radius: 4px;
   margin-bottom: var(--cds-spacing-05);
+  height: calc(100vh - 240px); /* Tam ekran eksi diğer öğeler */
 }
 
 .messages-container::-webkit-scrollbar {
@@ -248,13 +290,11 @@ main {
   content: "";
   position: absolute;
   bottom: 0;
-  right: -10px;
+  right: -8px;
   width: 0;
   height: 0;
-  border: 10px solid transparent;
-  border-left-color: var(--cds-interactive-01);
-  border-right: 0;
-  border-bottom: 0;
+  border-left: 8px solid var(--cds-interactive-01);
+  border-top: 8px solid transparent;
 }
 
 .chat-message-others {
@@ -268,13 +308,11 @@ main {
   content: "";
   position: absolute;
   bottom: 0;
-  left: -10px;
+  left: -8px;
   width: 0;
   height: 0;
-  border: 10px solid transparent;
-  border-right-color: var(--cds-layer-02);
-  border-left: 0;
-  border-bottom: 0;
+  border-right: 8px solid var(--cds-layer-02);
+  border-top: 8px solid transparent;
 }
 
 .chat-message-header {
@@ -291,29 +329,26 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
-  color: white;
+  font-weight: bold;
+  color: #fff;
   font-size: 14px;
 }
 
 .chat-message-sender {
   font-weight: 600;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 
 .chat-message-text {
   word-break: break-word;
   margin-bottom: var(--cds-spacing-03);
+  line-height: 1.5;
 }
 
 .chat-message-timestamp {
-  font-size: 12px;
+  font-size: 0.75rem;
   opacity: 0.7;
   align-self: flex-end;
-}
-
-.chat-message-mine .chat-message-timestamp {
-  color: var(--cds-text-on-color);
 }
 
 .chat-input-container {
@@ -322,6 +357,9 @@ main {
   padding: var(--cds-spacing-05);
   background-color: var(--cds-layer-01);
   border-radius: 4px;
+  position: sticky;
+  bottom: 0;
+  width: 100%;
 }
 
 .message-input {
@@ -329,31 +367,7 @@ main {
 }
 
 .send-button {
-  min-width: 100px;
-}
-
-.send-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
-
-.send-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.error-notification,
-.copy-notification {
-  position: fixed;
-  top: 80px;
-  right: 20px;
-  z-index: 1000;
-}
-
-.chat-loading {
-  padding: var(--cds-spacing-07);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  min-width: 120px;
 }
 
 .chat-empty {
@@ -361,33 +375,76 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--cds-spacing-09);
+  gap: var(--cds-spacing-05);
+  padding: var(--cds-spacing-07);
   text-align: center;
   background-color: var(--cds-layer-01);
   border-radius: 4px;
   height: 100%;
 }
 
-.chat-empty p {
-  margin-top: var(--cds-spacing-05);
-  color: var(--cds-text-02);
+.chat-empty-icon {
+  color: var(--cds-interactive-01);
+  margin-bottom: var(--cds-spacing-05);
 }
 
-.chat-empty-icon {
-  color: var(--cds-icon-02);
+.chat-loading {
+  padding: var(--cds-spacing-05);
+  background-color: var(--cds-layer-01);
+  border-radius: 4px;
+  width: 100%;
+}
+
+.error-notification,
+.copy-notification {
+  position: fixed;
+  top: var(--cds-spacing-06);
+  right: var(--cds-spacing-06);
+  z-index: 1001;
+  animation: slideIn 0.3s ease-in-out;
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* Responsive Tasarım */
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Ekstra Responsive Düzenlemeler */
 @media (max-width: 768px) {
   .chat-message {
     max-width: 90%;
   }
   
+  .room-info-content {
+    flex-direction: column;
+  }
+  
+  .room-link-container {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .messages-container {
+    height: calc(100vh - 280px);
+  }
+}
+
+@media (max-width: 480px) {
   .chat-input-container {
     flex-direction: column;
   }
@@ -396,39 +453,8 @@ main {
     width: 100%;
   }
   
-  .room-info-content {
-    flex-direction: column;
-  }
-  
-  .room-title {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--cds-spacing-03);
-  }
-}
-
-@media (max-width: 480px) {
-  .chat-content {
-    padding: var(--cds-spacing-03);
-  }
-  
   .messages-container {
-    padding: var(--cds-spacing-03);
-  }
-  
-  .chat-message {
-    max-width: 95%;
-    padding: var(--cds-spacing-04);
-  }
-  
-  .room-tag {
-    display: none;
-  }
-  
-  .chat-avatar {
-    width: 24px;
-    height: 24px;
-    font-size: 12px;
+    height: calc(100vh - 340px);
   }
 }
 
@@ -1497,5 +1523,191 @@ html, body {
   
   .chat-button {
     width: 100%;
+  }
+}
+
+/* Ana Sayfa Stilleri - Carbon Gray 100 Tema */
+.home-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--cds-background);
+  overflow-x: hidden;
+}
+
+.home-header {
+  background-color: var(--cds-background);
+  border-bottom: 1px solid var(--cds-border-strong-01);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.home-grid {
+  min-height: calc(100vh - 48px); /* Tam ekran eksi header yüksekliği */
+  padding: var(--cds-spacing-07);
+  display: flex;
+  align-items: center;
+}
+
+.welcome-column {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.welcome-tile {
+  background-color: var(--cds-layer-01);
+  padding: var(--cds-spacing-07);
+  border-radius: 4px;
+  transition: background-color 110ms;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-spacing-06);
+}
+
+.welcome-icon {
+  color: var(--cds-interactive-01);
+  margin-bottom: var(--cds-spacing-03);
+}
+
+.welcome-title {
+  font-size: 2rem;
+  font-weight: 400;
+  margin-bottom: var(--cds-spacing-05);
+}
+
+.welcome-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: var(--cds-spacing-06);
+  color: var(--cds-text-02);
+  max-width: 550px;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--cds-spacing-05);
+  margin-top: var(--cds-spacing-05);
+}
+
+.welcome-button {
+  width: 100%;
+  max-width: 300px;
+  transition: transform 110ms ease, background-color 110ms ease;
+}
+
+.welcome-button:hover {
+  transform: translateY(-2px);
+}
+
+.welcome-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--cds-text-02);
+  margin: var(--cds-spacing-03) 0;
+}
+
+.welcome-divider::before,
+.welcome-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--cds-border-subtle-01);
+}
+
+.welcome-divider::before {
+  margin-right: var(--cds-spacing-03);
+}
+
+.welcome-divider::after {
+  margin-left: var(--cds-spacing-03);
+}
+
+.features-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.features-tile {
+  background-color: var(--cds-layer-01);
+  padding: var(--cds-spacing-07);
+  border-radius: 4px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.features-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--cds-spacing-06);
+  color: var(--cds-text-01);
+}
+
+.features-list {
+  list-style-position: inside;
+  padding-left: var(--cds-spacing-03);
+}
+
+.features-list li {
+  margin-bottom: var(--cds-spacing-05);
+  line-height: 1.5;
+  color: var(--cds-text-02);
+}
+
+.modal-description {
+  margin-bottom: var(--cds-spacing-05);
+  color: var(--cds-text-02);
+}
+
+/* Responsive Ana Sayfa */
+@media (min-width: 768px) {
+  .welcome-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--cds-spacing-05);
+  }
+  
+  .welcome-divider {
+    margin: 0 var(--cds-spacing-05);
+  }
+}
+
+@media (max-width: 768px) {
+  .home-grid {
+    padding: var(--cds-spacing-05);
+  }
+  
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .features-tile {
+    margin-top: var(--cds-spacing-06);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.25rem;
+  }
+  
+  .welcome-actions {
+    gap: var(--cds-spacing-05);
+  }
+  
+  .welcome-button {
+    max-width: 100%;
   }
 } 
