@@ -3,13 +3,13 @@ import { getDatabase, connectDatabaseEmulator, ref, onDisconnect, onValue, Datab
 
 // Firebase yapılandırma bilgileri
 const firebaseConfig = {
-  apiKey: "AIzaSyA8P2VSn4-BQmPZ4yUJLU8GgdvvaUZKCNE",
-  authDomain: "anonymchat-f8ad7.firebaseapp.com",
-  databaseURL: "https://anonymchat-f8ad7-default-rtdb.firebasedatabase.app",
-  projectId: "anonymchat-f8ad7",
-  storageBucket: "anonymchat-f8ad7.appspot.com",
-  messagingSenderId: "169544621618",
-  appId: "1:169544621618:web:5b4e49c676a96132c5a62b"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || "AIzaSyA8P2VSn4-BQmPZ4yUJLU8GgdvvaUZKCNE",
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "anonymchat-f8ad7.firebaseapp.com",
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "https://anonymchat-f8ad7-default-rtdb.firebasedatabase.app",
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "anonymchat-f8ad7",
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || "anonymchat-f8ad7.appspot.com",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "169544621618",
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "1:169544621618:web:5b4e49c676a96132c5a62b"
 };
 
 // Firebase uygulamasını başlat
