@@ -307,26 +307,27 @@ main {
 .chat-message {
   margin-bottom: var(--cds-spacing-04);
   width: 100%;
-  background-color: var(--cds-layer-01);
   border-left: 4px solid transparent;
   transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: var(--cds-spacing-04);
 }
 
 .chat-message-mine {
-  border-left-color: var(--cds-interactive-01);
+  border-left-color: #0f62fe; /* Blue 60 - Interactive 01 */
   margin-left: auto;
   max-width: calc(100% - 30%);
-  background-color: var(--cds-layer-01);
-  color: var(--cds-text-01);
+  background-color: #262626; /* Gray 90 - Layer 01 */
+  color: #f4f4f4; /* Gray 10 - Text 01 */
 }
 
 .chat-message-others {
-  border-left-color: var(--cds-interactive-02);
+  border-left-color: #78a9ff; /* Blue 40 - Interactive 02 */
   margin-right: auto;
   max-width: calc(100% - 30%);
-  background-color: #ffffff; /* White 0 rengi */
-  color: #161616; /* Gray 100 rengi (koyu metin) */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  background-color: #f4f4f4; /* Gray 10 - Layer 01 in light theme */
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message-header {
@@ -397,27 +398,63 @@ main {
   color: var(--cds-interactive-01);
 }
 
+/* Chat avatar stilleri */
+.chat-message-mine .chat-avatar {
+  background-color: #0f62fe; /* Blue 60 - Interactive 01 */
+  color: #ffffff; /* White - For contrast */
+}
+
+.chat-message-others .chat-avatar {
+  background-color: #4589ff; /* Blue 50 - Highlight 01 */
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+}
+
+/* Mesaj göndericisi stilleri */
+.chat-message-mine .chat-message-sender {
+  color: #f4f4f4; /* Gray 10 - Text 01 */
+}
+
+.chat-message-others .chat-message-sender {
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+}
+
+/* Mesaj metni stilleri */
+.chat-message-mine .chat-message-text {
+  color: #f4f4f4; /* Gray 10 - Text 01 */
+}
+
+.chat-message-others .chat-message-text {
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+}
+
+/* Zaman damgası stilleri */
+.chat-message-mine .chat-message-timestamp {
+  color: #c6c6c6; /* Gray 40 - Text 02 */
+}
+
+.chat-message-others .chat-message-timestamp {
+  color: #525252; /* Gray 70 - Text 02 in light theme */
+}
+
 /* Koyu Mod Uyumluluğu */
 .cds--g100 .chat-message-mine {
-  background-color: var(--cds-layer-01);
+  background-color: #262626; /* Gray 90 - Layer 01 */
+  border-left-color: #0f62fe; /* Blue 60 - Interactive 01 */
 }
 
 .cds--g100 .chat-message-others {
-  background-color: #ffffff; /* White 0 rengi */
-  color: #161616; /* Gray 100 rengi */
+  background-color: #f4f4f4; /* Gray 10 - Layer 01 in light theme */
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+  border-left-color: #78a9ff; /* Blue 40 - Interactive 02 */
 }
 
 .cds--g100 .chat-message-others .chat-message-sender {
-  color: #161616; /* Gray 100 rengi */
-  font-weight: 600;
+  color: #161616; /* Gray 100 - Text 01 in light theme */
+  font-weight: 500;
 }
 
 .cds--g100 .chat-message-others .chat-message-timestamp {
-  color: #6f6f6f; /* Gray 60 rengi */
-}
-
-.cds--g100 .chat-empty {
-  background-color: var(--cds-layer-01);
+  color: #525252; /* Gray 70 - Text 02 in light theme */
 }
 
 /* Input bileşeni için ek stiller */
@@ -1254,18 +1291,18 @@ main {
 }
 
 .connection-dot.connected {
-  background-color: #24a148;
+  background-color: #24a148; /* Green 60 - Success */
   box-shadow: 0 0 4px #24a148;
 }
 
 .connection-dot.connecting {
-  background-color: #8a3ffc;
+  background-color: #8a3ffc; /* Purple 60 - Information */
   box-shadow: 0 0 4px #8a3ffc;
 }
 
 .connection-dot.error {
-  background-color: #fa4d56;
-  box-shadow: 0 0 4px #fa4d56;
+  background-color: #da1e28; /* Red 60 - Error */
+  box-shadow: 0 0 4px #da1e28;
 }
 
 .connection-text {
@@ -1278,42 +1315,4 @@ main {
   height: 100%;
   display: flex;
   align-items: center;
-}
-
-/* Chat avatar stilleri */
-.chat-message-mine .chat-avatar {
-  background-color: var(--cds-interactive-01);
-  color: white;
-}
-
-.chat-message-others .chat-avatar {
-  background-color: #78a9ff; /* Blue 40 */
-  color: #161616; /* Gray 100 */
-}
-
-/* Mesaj göndericisi stilleri */
-.chat-message-mine .chat-message-sender {
-  color: var(--cds-text-01);
-}
-
-.chat-message-others .chat-message-sender {
-  color: #161616; /* Gray 100 */
-}
-
-/* Mesaj metni stilleri */
-.chat-message-mine .chat-message-text {
-  color: var(--cds-text-01);
-}
-
-.chat-message-others .chat-message-text {
-  color: #161616; /* Gray 100 */
-}
-
-/* Zaman damgası stilleri */
-.chat-message-mine .chat-message-timestamp {
-  color: var(--cds-text-secondary, #c6c6c6); /* Gray 40 */
-}
-
-.chat-message-others .chat-message-timestamp {
-  color: #6f6f6f; /* Gray 60 */
 }
