@@ -115,12 +115,37 @@ export default function RoomPage() {
         setLoading(true);
         setConnectionStatus(retry > 0 ? `bağlanıyor (deneme ${retry}/${maxRetries})` : 'bağlanıyor');
         
+        console.log("Firebase bağlantısı başlatılıyor...");
+        console.log("RoomID:", roomId);
+        console.log("Firebase config:", JSON.stringify({
+          databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL || "hardcoded kullanılıyor",
+          projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || "hardcoded kullanılıyor"
+        }));
+        
+        // Database null kontrolü
+        if (!database) {
+          console.error("Firebase database null! Firebase bağlantısı kurulamadı.");
+          setError("Firebase veritabanı bağlantısı başlatılamadı. Lütfen sayfayı yenileyin.");
+          setConnectionStatus('kritik hata');
+          setLoading(false);
+          return;
+        }
+        
         // Firebase referansını oluştur
         messagesRef.current = ref(database, `rooms/${roomId}/messages`);
+        console.log("Oda referansı oluşturuldu:", `rooms/${roomId}/messages`);
         
         // İlk verileri çek
         try {
+          console.log("İlk veri çekme işlemi başlatılıyor...");
+          
+          if (!messagesRef.current) {
+            throw new Error("Mesaj referansı oluşturulamadı!");
+          }
+          
           const snapshot = await get(messagesRef.current);
+          console.log("Snapshot alındı:", snapshot.exists() ? "Veri var" : "Veri yok");
+          
           if (snapshot.exists()) {
             setConnectionStatus('bağlandı');
             console.log("Oda verisi başarıyla alındı:", snapshot.val());
@@ -130,6 +155,8 @@ export default function RoomPage() {
           }
         } catch (getError) {
           console.error("İlk veri çekme hatası:", getError);
+          setError("Veri çekme hatası: " + JSON.stringify(getError));
+          
           if (retry < maxRetries) {
             console.log(`Veri çekme başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`);
             setTimeout(() => fetchMessages(retry + 1), 2000);
@@ -145,12 +172,14 @@ export default function RoomPage() {
         try {
           console.log("Gerçek zamanlı veri dinleyicisi ekleniyor...");
           unsubscribe = onValue(messagesRef.current, (snapshot) => {
+            console.log("onValue callback çağrıldı - veri alındı");
             setLoading(false);
             
             const data = snapshot.val();
             const loadedMessages: Message[] = [];
             
             if (data) {
+              console.log("Alınan veri:", JSON.stringify(data).substring(0, 100) + "...");
               Object.keys(data).forEach((key) => {
                 loadedMessages.push({
                   id: key,
@@ -193,6 +222,7 @@ export default function RoomPage() {
               }
             } else {
               // Mesaj yoksa yükleme durumunu kapat
+              console.log("Oda boş, mesaj yok");
               setLoading(false);
               setConnectionStatus('bağlı (boş oda)');
             }
