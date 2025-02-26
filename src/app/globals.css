@@ -206,17 +206,16 @@ main {
 
 .chat-room-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  padding: var(--cds-spacing-03);
-  border-bottom: 1px solid var(--cds-border-subtle-01);
-  background-color: var(--cds-layer-02);
-  flex-wrap: wrap;
-  gap: var(--cds-spacing-03);
-  height: 60px;
+  padding: var(--cds-spacing-05);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background-color: var(--cds-layer-01);
   width: 100%;
   position: relative;
   z-index: 50;
+  height: auto;
+  min-height: 70px;
 }
 
 .chat-title-container {
@@ -233,14 +232,17 @@ main {
 
 .room-link-container {
   display: flex;
-  align-items: center;
   gap: var(--cds-spacing-03);
-  flex: 1;
-  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .room-link-input {
   flex: 1;
+}
+
+.room-link-input input {
+  padding-right: var(--cds-spacing-09);
 }
 
 .chat-messages-area {
@@ -250,7 +252,8 @@ main {
   flex-direction: column;
   height: calc(100% - 60px - 80px); /* 100% - room-header - input */
   overflow: hidden;
-  background-color: var(--cds-background);
+  background-color: var(--cds-layer);
+  padding: var(--cds-spacing-05);
 }
 
 .messages-container {
@@ -268,9 +271,9 @@ main {
 .chat-input-area {
   display: flex;
   gap: var(--cds-spacing-03);
-  padding: var(--cds-spacing-04);
-  background-color: var(--cds-layer-02);
-  border-top: 1px solid var(--cds-border-subtle-01);
+  padding: var(--cds-spacing-05);
+  background-color: var(--cds-layer-01);
+  border-top: 1px solid var(--cds-border-subtle);
   height: 80px;
   width: 100%;
   position: relative;
@@ -282,7 +285,12 @@ main {
 }
 
 .send-button {
-  min-width: 100px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  min-width: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Notification styles */
@@ -295,39 +303,37 @@ main {
   width: auto;
 }
 
-/* Chat mesaj stilleri - Carbon örneğindeki gibi daha yuvarlak ve dengeli */
+/* Chat Message Carbon Styles */
 .chat-message {
-  display: flex;
-  flex-direction: column;
-  padding: var(--cds-spacing-04);
-  border-radius: 12px;
-  position: relative;
-  max-width: 70%; /* Mesaj balonlarını biraz daha küçülttüm */
-  animation: fadeIn 0.3s ease-in-out;
-  margin-bottom: var(--cds-spacing-03);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: var(--cds-spacing-04);
+  width: 100%;
+  background-color: var(--cds-layer-01);
+  border-left: 4px solid transparent;
+  transition: all 0.2s ease;
 }
 
 .chat-message-mine {
-  align-self: flex-end;
-  background-color: var(--cds-interactive-01);
-  color: white;
-  border-bottom-right-radius: 4px;
-  margin-left: 30%; /* Sağdaki mesaj kenar boşluğunu arttırdım */
+  border-left-color: var(--cds-interactive-01);
+  margin-left: auto;
+  max-width: calc(100% - 30%);
+  background-color: var(--cds-layer-01);
+  color: var(--cds-text-01);
 }
 
 .chat-message-others {
-  align-self: flex-start;
-  background-color: var(--cds-layer-02);
-  border-bottom-left-radius: 4px;
-  margin-right: 30%; /* Soldaki mesaj kenar boşluğunu arttırdım */
+  border-left-color: var(--cds-interactive-02);
+  margin-right: auto;
+  max-width: calc(100% - 30%);
+  background-color: #ffffff; /* White 0 rengi */
+  color: #161616; /* Gray 100 rengi (koyu metin) */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .chat-message-header {
   display: flex;
   align-items: center;
   gap: var(--cds-spacing-03);
-  margin-bottom: var(--cds-spacing-02);
+  margin-bottom: var(--cds-spacing-03);
 }
 
 .chat-avatar {
@@ -337,39 +343,40 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
   color: white;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-  flex-shrink: 0;
+  font-weight: 600;
+  font-size: 14px;
 }
 
 .chat-message-sender {
-  font-weight: 600;
-  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 .chat-message-text {
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   line-height: 1.5;
   word-break: break-word;
+  white-space: pre-wrap;
+  margin-bottom: var(--cds-spacing-03);
 }
 
 .chat-message-timestamp {
   font-size: 0.75rem;
-  align-self: flex-end;
-  margin-top: var(--cds-spacing-03);
-  opacity: 0.7;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  color: var(--cds-text-secondary);
+  text-align: right;
 }
 
 /* Yükleme ve boş durum stilleri */
 .chat-loading {
-  padding: var(--cds-spacing-05);
-  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  min-height: 200px;
+}
+
+.chat-loading-indicator {
+  margin: 0 auto;
 }
 
 .chat-empty {
@@ -377,27 +384,36 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: var(--cds-spacing-09);
   text-align: center;
-  gap: var(--cds-spacing-05);
-  padding: var(--cds-spacing-07);
-  margin: auto;
-  background-color: var(--cds-layer-01);
-  border: 1px dashed var(--cds-border-subtle-01);
-  border-radius: 8px;
+  margin: var(--cds-spacing-07) auto;
   max-width: 400px;
+  border-radius: var(--cds-border-radius-lg);
+  background-color: var(--cds-layer-hover);
 }
 
 .chat-empty-icon {
+  margin-bottom: var(--cds-spacing-05);
   color: var(--cds-interactive-01);
 }
 
 /* Koyu Mod Uyumluluğu */
-.cds--g100 .chat-message-others {
-  background-color: var(--cds-layer-02);
+.cds--g100 .chat-message-mine {
+  background-color: var(--cds-layer-01);
 }
 
-.cds--g100 .chat-message-others::after {
-  border-right-color: var(--cds-layer-02);
+.cds--g100 .chat-message-others {
+  background-color: #ffffff; /* White 0 rengi */
+  color: #161616; /* Gray 100 rengi */
+}
+
+.cds--g100 .chat-message-others .chat-message-sender {
+  color: #161616; /* Gray 100 rengi */
+  font-weight: 600;
+}
+
+.cds--g100 .chat-message-others .chat-message-timestamp {
+  color: #6f6f6f; /* Gray 60 rengi */
 }
 
 .cds--g100 .chat-empty {
@@ -748,4 +764,556 @@ main {
   .chat-message-others {
     margin-right: 10%;
   }
+}
+
+.carbon-link {
+  display: inline-block;
+  margin-top: var(--cds-spacing-05);
+  font-size: 0.875rem;
+  color: var(--cds-link-01);
+  text-align: center;
+  width: 100%;
+}
+
+.carbon-link:hover {
+  color: var(--cds-link-02);
+  text-decoration: underline;
+}
+
+/* Header içindeki logo ve metin arasındaki boşluğu artırma */
+.cds--header__name svg {
+  margin-right: var(--cds-spacing-05);
+}
+
+/* Oda bilgisi konteynerı - Carbon tasarım sistemine uygun olarak düzenleme */
+.room-info-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  margin: 0 auto;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 0;
+}
+
+.room-tag {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  background-color: var(--cds-background-brand) !important;
+  height: 2rem !important;
+  line-height: 2rem !important;
+  padding: 0 var(--cds-spacing-05) !important;
+  font-size: 0.875rem !important;
+  border-radius: 0.5rem !important;
+}
+
+.room-tag-icon {
+  margin-right: var(--cds-spacing-02);
+}
+
+/* Durum etiketi konteynerı */
+.status-tag-container {
+  display: flex;
+  align-items: center;
+  margin-right: var(--cds-spacing-05);
+  height: 100%;
+  z-index: 1;
+}
+
+.status-tag {
+  display: flex !important;
+  align-items: center !important;
+  gap: var(--cds-spacing-02);
+  padding: 0 var(--cds-spacing-04) !important; 
+  height: 2rem !important;
+  border-radius: 0.5rem !important;
+  font-size: 0.875rem !important;
+}
+
+.status-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* InlineLoading Stilleri */
+.status-loading {
+  height: 2rem !important;
+  min-width: 120px;
+  align-items: center;
+  padding: 0 var(--cds-spacing-03);
+}
+
+.status-loading .cds--inline-loading__text {
+  font-size: 0.875rem;
+  color: var(--cds-text-01);
+}
+
+/* Mesaj giriş grubu */
+.message-input-group {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  background-color: var(--cds-layer);
+  border: none;
+  border-radius: 8px;
+  padding: var(--cds-spacing-03);
+  position: relative;
+}
+
+.message-input {
+  flex: 1;
+  width: 100%;
+  position: relative;
+}
+
+/* Mesaj input stilini güncelleme */
+.message-input .cds--text-input-wrapper {
+  background-color: transparent;
+  border: none;
+  width: 100%;
+}
+
+.message-input .cds--text-input {
+  background-color: transparent;
+  border-bottom: 1px solid var(--cds-border-subtle);
+  transition: border-bottom-color 0.2s ease;
+  width: calc(100% - var(--cds-spacing-07));
+  padding-right: var(--cds-spacing-08);
+}
+
+.message-input .cds--text-input:focus {
+  outline: none;
+  box-shadow: none;
+  border-bottom: 2px solid var(--cds-interactive-01);
+}
+
+.send-button {
+  position: absolute;
+  right: var(--cds-spacing-05);
+  bottom: var(--cds-spacing-05);
+  background-color: transparent !important;
+  padding: 0;
+  min-width: auto !important;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  z-index: 10;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}
+
+.send-button:hover {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.send-button svg {
+  fill: white;
+}
+
+.send-button.cds--btn--primary {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.send-button span.cds--btn__icon {
+  position: static;
+  margin: 0;
+}
+
+/* Send button içindeki metin kısmını gizle */
+.send-button span:not(.cds--btn__icon) {
+  display: none;
+}
+
+/* InlineLoading bileşenini gizleme (gönderirken) */
+.send-button .cds--inline-loading {
+  display: none;
+}
+
+/* Carbon Design Button varsayılan stillerini geçersiz kılma */
+.send-button.cds--btn {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+  background-color: transparent !important;
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Carbon bileşenlerini düzgün hizalama */
+.chat-header .cds--header__menu-toggle {
+  display: none;
+}
+
+.chat-room-header {
+  padding: var(--cds-spacing-05);
+  border-bottom: 1px solid var(--cds-border-subtle);
+  background-color: var(--cds-layer-01);
+}
+
+.chat-input-area {
+  padding: var(--cds-spacing-05);
+  border-top: 1px solid var(--cds-border-subtle);
+  background-color: var(--cds-layer-01);
+}
+
+.chat-messages-area {
+  flex: 1;
+  overflow-y: auto;
+  background-color: var(--cds-layer);
+  padding: var(--cds-spacing-05);
+}
+
+/* Boş mesaj ekranı */
+.chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--cds-spacing-09);
+  text-align: center;
+  margin: var(--cds-spacing-07) auto;
+  max-width: 400px;
+  border-radius: var(--cds-border-radius-lg);
+  background-color: var(--cds-layer-hover);
+}
+
+.chat-empty-icon {
+  margin-bottom: var(--cds-spacing-05);
+  color: var(--cds-interactive-01);
+}
+
+/* Room Link Input */
+.room-link-container {
+  display: flex;
+  gap: var(--cds-spacing-03);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.room-link-input input {
+  padding-right: var(--cds-spacing-09);
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+  .room-info-container {
+    position: static;
+    transform: none;
+    padding: 0 var(--cds-spacing-03);
+  }
+  
+  .room-tag {
+    font-size: 0.75rem !important;
+    padding: 0 var(--cds-spacing-03) !important;
+    height: 1.5rem !important;
+    line-height: 1.5rem !important;
+  }
+  
+  .status-tag-container {
+    margin-right: var(--cds-spacing-03);
+  }
+  
+  .status-tag {
+    font-size: 0.75rem !important;
+    padding: 0 var(--cds-spacing-03) !important;
+    height: 1.5rem !important;
+  }
+  
+  .status-loading {
+    min-width: 90px;
+  }
+  
+  .cds--header__name {
+    font-size: 0.875rem;
+  }
+  
+  .send-button {
+    min-width: 90px;
+  }
+}
+
+/* Yeni Tab ve Header Stilleri */
+.chat-header-name {
+  display: flex;
+  align-items: center;
+}
+
+.app-title {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+}
+
+.app-title svg {
+  margin-right: var(--cds-spacing-02);
+}
+
+.chat-tabs-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.cds--tabs {
+  width: auto;
+  margin: 0 auto;
+}
+
+.cds--tab-list {
+  background-color: transparent;
+  border-bottom: none;
+}
+
+.room-tab {
+  padding: 0;
+  height: 32px;
+  max-width: 200px;
+}
+
+.room-tab-content {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  padding: 0 var(--cds-spacing-05);
+  height: 100%;
+}
+
+.room-tab-content svg {
+  flex-shrink: 0;
+}
+
+/* Minimal Oda Bağlantısı Stilleri - Grid uyumlu */
+.room-share-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--cds-spacing-03);
+}
+
+.room-link-compact {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: var(--cds-layer);
+  border: 1px solid var(--cds-border-subtle);
+  border-radius: 8px;
+  padding: var(--cds-spacing-04);
+  height: 48px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.room-link-compact:hover {
+  border-color: var(--cds-focus);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.15);
+}
+
+.room-link-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cds-text-02);
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.room-link-input {
+  flex: 1;
+  max-width: none;
+  background-color: transparent;
+}
+
+.room-link-input input {
+  background-color: transparent;
+  border-bottom: none;
+  height: 32px;
+  color: var(--cds-text-01);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.room-link-input .cds--text-input-wrapper {
+  background-color: transparent;
+  border: none;
+}
+
+.room-link-input .cds--text-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* Responsive düzenlemeler */
+@media (max-width: 768px) {
+  .room-share-container {
+    padding: var(--cds-spacing-02);
+  }
+  
+  .room-link-compact {
+    height: 36px;
+    padding: var(--cds-spacing-01);
+  }
+  
+  .room-link-label {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .room-link-input input {
+    height: 28px;
+    font-size: 0.75rem;
+  }
+}
+
+/* Chat Container Genişliği */
+.chat-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 var(--cds-spacing-05);
+}
+
+/* Responsive Düzenlemeler */
+@media (max-width: 768px) {
+  .app-title {
+    display: none;
+  }
+  
+  .chat-tabs-container {
+    flex: 0;
+    margin: 0;
+  }
+  
+  .room-tab {
+    max-width: 150px;
+  }
+  
+  .connection-text {
+    display: none;
+  }
+  
+  .room-share-container {
+    flex-direction: column;
+    padding: var(--cds-spacing-02);
+  }
+  
+  .room-share-label {
+    font-size: 0.75rem;
+  }
+  
+  .chat-container {
+    padding: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .room-tab {
+    max-width: 120px;
+  }
+  
+  .room-tab-content {
+    padding: 0 var(--cds-spacing-03);
+    font-size: 0.75rem;
+  }
+}
+
+/* Yeni Bağlantı Durum Göstergesi */
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  margin-right: var(--cds-spacing-05);
+  height: 100%;
+  padding: 0 var(--cds-spacing-03);
+}
+
+.connection-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.connection-dot.connected {
+  background-color: #24a148;
+  box-shadow: 0 0 4px #24a148;
+}
+
+.connection-dot.connecting {
+  background-color: #8a3ffc;
+  box-shadow: 0 0 4px #8a3ffc;
+}
+
+.connection-dot.error {
+  background-color: #fa4d56;
+  box-shadow: 0 0 4px #fa4d56;
+}
+
+.connection-text {
+  font-size: 0.75rem;
+  color: var(--cds-text-02);
+}
+
+.connection-status-loading {
+  margin-right: var(--cds-spacing-05);
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* Chat avatar stilleri */
+.chat-message-mine .chat-avatar {
+  background-color: var(--cds-interactive-01);
+  color: white;
+}
+
+.chat-message-others .chat-avatar {
+  background-color: #78a9ff; /* Blue 40 */
+  color: #161616; /* Gray 100 */
+}
+
+/* Mesaj göndericisi stilleri */
+.chat-message-mine .chat-message-sender {
+  color: var(--cds-text-01);
+}
+
+.chat-message-others .chat-message-sender {
+  color: #161616; /* Gray 100 */
+}
+
+/* Mesaj metni stilleri */
+.chat-message-mine .chat-message-text {
+  color: var(--cds-text-01);
+}
+
+.chat-message-others .chat-message-text {
+  color: #161616; /* Gray 100 */
+}
+
+/* Zaman damgası stilleri */
+.chat-message-mine .chat-message-timestamp {
+  color: var(--cds-text-secondary, #c6c6c6); /* Gray 40 */
+}
+
+.chat-message-others .chat-message-timestamp {
+  color: #6f6f6f; /* Gray 60 */
 }
