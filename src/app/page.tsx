@@ -99,7 +99,8 @@ export default function Home() {
       {/* Ana İçerik - Carbon Grid Yapısı */}
       <Content>
         <Grid fullWidth className="home-grid">
-          <Column lg={8} md={6} sm={4} className="welcome-column">
+          {/* Ortada tek bir kolon olarak kartı yerleştiriyoruz - offset değerlerini düşürdüm */}
+          <Column lg={{span: 6, offset: 5}} md={{span: 6, offset: 1}} sm={4} className="welcome-column">
             <Tile className="welcome-tile">
               <div className="welcome-content">
                 <div className="welcome-icon">
@@ -138,20 +139,6 @@ export default function Home() {
                   </Button>
                 </div>
               </div>
-            </Tile>
-          </Column>
-          
-          <Column lg={8} md={2} sm={0} className="features-column">
-            <Tile className="features-tile">
-              <h3 className="features-title">Özelllikler</h3>
-              <ul className="features-list">
-                <li>Gizli ve anonim sohbet</li>
-                <li>Kayıt veya kullanıcı hesabı gerektirmez</li>
-                <li>Otomatik kullanıcı adı oluşturma</li>
-                <li>Benzersiz oda bağlantısı</li>
-                <li>Gerçek zamanlı mesajlaşma</li>
-                <li>Tamamen ücretsiz</li>
-              </ul>
             </Tile>
           </Column>
         </Grid>
