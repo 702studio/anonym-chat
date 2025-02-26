@@ -314,7 +314,7 @@ main {
 }
 
 .chat-message-mine {
-  border-left-color: #0f62fe; /* Blue 60 - Interactive 01 */
+  border-left-color: #0f62fe; /* Blue 60 - Interactive 01 - Carbon'un "blue" tag'ı ile eşleşecek şekilde */
   margin-left: auto;
   max-width: calc(100% - 30%);
   background-color: #262626; /* Gray 90 - Layer 01 */
@@ -322,7 +322,7 @@ main {
 }
 
 .chat-message-others {
-  border-left-color: #78a9ff; /* Blue 40 - Interactive 02 */
+  border-left-color: #4589ff; /* Blue 50 - Tüm diğer kullanıcılar için aynı renk */
   margin-right: auto;
   max-width: calc(100% - 30%);
   background-color: #f4f4f4; /* Gray 10 - Layer 01 in light theme */

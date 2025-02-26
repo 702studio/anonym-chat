@@ -63,25 +63,9 @@ export default function RoomPage() {
 
   // Renk belirleyici fonksiyon - kullanıcı adına göre tutarlı bir renk üretir
   const getUserColor = (username: string) => {
-    const colors = [
-      '#8a3ffc', // purple
-      '#33b1ff', // blue
-      '#007d79', // teal
-      '#ff7eb6', // magenta
-      '#fa4d56', // red
-      '#4589ff', // blue
-      '#08bdba', // teal
-      '#d12771', // magenta
-      '#d2a106', // yellow
-      '#e78c3a', // orange
-    ];
-    
-    let sum = 0;
-    for (let i = 0; i < username.length; i++) {
-      sum += username.charCodeAt(i);
-    }
-    
-    return colors[sum % colors.length];
+    // Tüm kullanıcılar için sabit bir renk kullanılacak
+    // Carbon Design System'in yüksek kontrast rengi
+    return '#4589ff'; // Blue 50 - Tüm kullanıcılar için sabit mavi
   };
 
   // Avatar için harf oluşturma - kullanıcı adının ilk harfi
