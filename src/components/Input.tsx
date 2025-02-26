@@ -1,4 +1,5 @@
 import React from 'react';
+import { TextInput } from '@carbon/react';
 
 interface InputProps {
   value: string;
@@ -27,45 +28,23 @@ const Input: React.FC<InputProps> = ({
   invalidText,
   size = 'md',
 }) => {
-  // Input sınıfı kombinasyonları
-  const getInputClass = () => {
-    let classNames = ['input'];
-    
-    if (invalid) {
-      classNames.push('input-invalid');
-    }
-    
-    if (size === 'sm') {
-      classNames.push('input-sm');
-    } else if (size === 'lg') {
-      classNames.push('input-lg');
-    }
-    
-    return classNames.join(' ');
-  };
+  // Eğer id yoksa, benzersiz bir id oluştur
+  const inputId = id || `input-${Math.random().toString(36).substring(2, 9)}`;
   
   return (
-    <div className="input-wrapper">
-      {labelText && (
-        <label htmlFor={id} className="text-body-01 input-label">
-          {labelText}
-        </label>
-      )}
-      <input
-        id={id}
-        className={getInputClass()}
-        type={type}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        maxLength={maxLength}
-        onKeyDown={onKeyDown}
-        aria-invalid={invalid}
-      />
-      {invalid && invalidText && (
-        <div className="input-error-message">{invalidText}</div>
-      )}
-    </div>
+    <TextInput
+      id={inputId}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      maxLength={maxLength}
+      onKeyDown={onKeyDown}
+      labelText={labelText || ''}
+      invalid={invalid}
+      invalidText={invalidText || ''}
+      size={size}
+    />
   );
 };
 
