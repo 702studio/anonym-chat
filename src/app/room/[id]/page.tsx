@@ -50,7 +50,6 @@ export default function RoomPage() {
   const params = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef<DatabaseReference | null>(null);
   
   const roomId = params.id as string;
@@ -218,11 +217,6 @@ export default function RoomPage() {
               if (loadedMessages.length > 0) {
                 setLoading(false);
                 setConnectionStatus('bağlı (' + loadedMessages.length + ' mesaj)');
-                
-                // Yeni mesaj eklendiğinde otomatik kaydır
-                setTimeout(() => {
-                  messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
               }
             } else {
               // Mesaj yoksa yükleme durumunu kapat
@@ -279,10 +273,15 @@ export default function RoomPage() {
     };
   }, [roomId, searchParams, router, messages.length]);
   
-  // Yeni mesaj geldiğinde aşağı kaydır
+  // Yeni mesaj geldiğinde otomatik kaydır (column-reverse için düzenlendi)
   useEffect(() => {
     if (messages.length > 0) {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      // Column-reverse yapısında en yeni mesajlar altta olduğu için
+      // scrollTop değerini 0'a çekerek otomatik olarak en son mesaja odaklanıyoruz
+      const messagesContainer = document.querySelector('.messages-container');
+      if (messagesContainer) {
+        messagesContainer.scrollTop = 0;
+      }
     }
   }, [messages]);
 
@@ -309,9 +308,12 @@ export default function RoomPage() {
       console.log("Mesaj başarıyla gönderildi:", newMessage);
       setSendingMessage(false);
       
-      // Gönderilen mesaj sonrası aşağı kaydırma
+      // Gönderilen mesaj sonrası aşağı kaydırma (column-reverse için düzenlendi)
       setTimeout(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        const messagesContainer = document.querySelector('.messages-container');
+        if (messagesContainer) {
+          messagesContainer.scrollTop = 0;
+        }
       }, 100);
     })
     .catch((error) => {
@@ -363,40 +365,43 @@ export default function RoomPage() {
       );
     }
     
-    return messages.map((msg) => (
-      <div 
-        key={msg.id} 
-        className={`chat-message ${msg.sender === nickname ? 'chat-message-mine' : 'chat-message-others'}`}
-      >
-        <div className="chat-message-header">
-          {msg.sender !== nickname && (
-            <div 
-              className="chat-avatar" 
-              style={{ backgroundColor: getUserColor(msg.sender) }}
-              aria-label={`${msg.sender} avatarı`}
-            >
-              {getInitial(msg.sender)}
+    // Mesajları ters sırada göster (yeniden eskiye doğru)
+    return [...messages]
+      .reverse()
+      .map((msg) => (
+        <div 
+          key={msg.id} 
+          className={`chat-message ${msg.sender === nickname ? 'chat-message-mine' : 'chat-message-others'}`}
+        >
+          <div className="chat-message-header">
+            {msg.sender !== nickname && (
+              <div 
+                className="chat-avatar" 
+                style={{ backgroundColor: getUserColor(msg.sender) }}
+                aria-label={`${msg.sender} avatarı`}
+              >
+                {getInitial(msg.sender)}
+              </div>
+            )}
+            <div className="chat-message-sender">
+              {msg.sender === nickname ? 'Siz' : msg.sender}
             </div>
-          )}
-          <div className="chat-message-sender">
-            {msg.sender === nickname ? 'Siz' : msg.sender}
+          </div>
+          <div className="chat-message-text">
+            {msg.text}
+          </div>
+          <div className="chat-message-timestamp">
+            {new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
           </div>
         </div>
-        <div className="chat-message-text">
-          {msg.text}
-        </div>
-        <div className="chat-message-timestamp">
-          {new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-        </div>
-      </div>
-    ));
+      ));
   };
 
   return (
     <div className="cds--g100 chat-page" data-carbon-theme="g100">
-      {/* Carbon Header */}
+      {/* Ana Header - Sabit Başlık */}
       <Header aria-label="Anonim Chat" className="chat-header">
-        <HeaderName onClick={goToHome} prefix="">
+        <HeaderName prefix="">
           <Button
             kind="ghost"
             renderIcon={ArrowLeft}
@@ -404,6 +409,7 @@ export default function RoomPage() {
             hasIconOnly
             size="sm"
             className="back-button"
+            onClick={goToHome}
           />
           <ChatBot size={20} /> Anonim Chat 
           <Tag className="room-tag" type="blue">Oda: {roomId}</Tag>
@@ -421,104 +427,91 @@ export default function RoomPage() {
         </HeaderGlobalBar>
       </Header>
       
-      {/* Ana içerik - Carbon Grid ve Sütun Yapısı */}
-      <Content>
-        <Grid fullWidth className="chat-grid">
-          {/* Bildirimler */}
-          {error && (
-            <Column lg={16} md={8} sm={4}>
-              <ToastNotification
-                kind="error"
-                title="Hata"
-                subtitle={error}
-                onClose={() => setError(null)}
-                timeout={5000}
-                className="error-notification"
-              />
-            </Column>
-          )}
-          
-          {copySuccess && (
-            <Column lg={16} md={8} sm={4}>
-              <ToastNotification
-                kind="success"
-                title="Başarılı"
-                subtitle="Bağlantı kopyalandı"
-                timeout={3000}
-                className="copy-notification"
-              />
-            </Column>
-          )}
-          
-          {/* Oda Bilgisi */}
-          <Column lg={16} md={8} sm={4}>
-            <Tile className="room-info-tile">
-              <div className="room-info-content">
-                <div className="room-title">
-                  <h3>Oda: {roomId}</h3>
-                  <Tag type={connectionStatus.includes('hata') ? 'red' : connectionStatus.includes('bağlanıyor') ? 'purple' : 'green'}>
-                    {connectionStatus}
-                  </Tag>
-                </div>
-                <div className="room-link-container">
-                  <TextInput
-                    id="room-link"
-                    labelText="Oda bağlantısı"
-                    value={roomLink}
-                    readOnly
-                    light
-                    size="sm"
-                    className="room-link-input"
-                  />
-                  <Button 
-                    hasIconOnly 
-                    renderIcon={Copy} 
-                    iconDescription="Kopyala" 
-                    onClick={handleCopyLink}
-                    kind="primary"
-                    size="sm"
-                  />
-                </div>
-              </div>
-            </Tile>
-          </Column>
-          
-          {/* Mesaj Alanı - Tüm genişliği kapla */}
-          <Column lg={16} md={8} sm={4} className="messages-column">
-            <div className="messages-container">
-              {renderMessages()}
-              <div ref={messagesEndRef} />
-            </div>
-          </Column>
-          
-          {/* Mesaj Gönderme Alanı */}
-          <Column lg={16} md={8} sm={4}>
-            <div className="chat-input-container">
+      {/* Bildirimler */}
+      {error && (
+        <div className="notification-wrapper">
+          <ToastNotification
+            kind="error"
+            title="Hata"
+            subtitle={error}
+            onClose={() => setError(null)}
+            timeout={5000}
+            className="error-notification"
+          />
+        </div>
+      )}
+      
+      {copySuccess && (
+        <div className="notification-wrapper">
+          <ToastNotification
+            kind="success"
+            title="Başarılı"
+            subtitle="Bağlantı kopyalandı"
+            timeout={3000}
+            className="copy-notification"
+          />
+        </div>
+      )}
+      
+      {/* Ana Chat Container - Full Screen Layout */}
+      <div className="chat-container">
+        <div className="chat-unified-tile">
+          {/* Oda Bilgisi - Sabit Üst Kısım */}
+          <div className="chat-room-header">
+            <div className="room-link-container">
               <TextInput
-                id="message-input"
-                labelText="Mesaj"
-                hideLabel
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Mesajınızı yazın..."
-                onKeyDown={handleKeyDown}
-                size="lg"
-                className="message-input"
+                id="room-link"
+                labelText="Oda bağlantısı"
+                value={roomLink}
+                readOnly
+                light
+                size="sm"
+                className="room-link-input"
               />
               <Button 
-                renderIcon={Send} 
-                onClick={handleSendMessage} 
-                disabled={sendingMessage || message.trim() === ''}
+                hasIconOnly 
+                renderIcon={Copy} 
+                iconDescription="Kopyala" 
+                onClick={handleCopyLink}
                 kind="primary"
-                size="lg"
-                className="send-button"
-              >
-                {sendingMessage ? 'Gönderiliyor...' : 'Gönder'}
-              </Button>
+                size="sm"
+              />
             </div>
-          </Column>
-        </Grid>
-      </Content>
+          </div>
+          
+          {/* Mesaj Alanı - Ortada Kaydırılabilir */}
+          <div className="chat-messages-area">
+            <div className="messages-container">
+              {renderMessages()}
+            </div>
+          </div>
+          
+          {/* Mesaj Gönderme Alanı - Sabit Altta */}
+          <div className="chat-input-area">
+            <TextInput
+              id="message-input"
+              labelText="Mesaj"
+              hideLabel
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Mesajınızı yazın..."
+              onKeyDown={handleKeyDown}
+              size="lg"
+              className="message-input"
+            />
+            <Button 
+              renderIcon={Send} 
+              onClick={handleSendMessage} 
+              disabled={sendingMessage || message.trim() === ''}
+              kind="primary"
+              size="lg"
+              className="send-button"
+            >
+              {sendingMessage ? 'Gönderiliyor...' : 'Gönder'}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

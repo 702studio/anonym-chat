@@ -146,17 +146,19 @@ main {
   height: 100vh;
   width: 100%;
   background-color: var(--cds-background);
-  overflow: hidden;
+  overflow: hidden; /* Sayfa genelinde scroll olmaması için */
   position: relative;
 }
 
 .chat-header {
   background-color: var(--cds-background);
   border-bottom: 1px solid var(--cds-border-strong-01);
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 1000;
-  height: 48px; /* Header yüksekliği */
+  left: 0;
+  right: 0;
+  z-index: 1500;
+  height: 48px;
 }
 
 .back-button {
@@ -176,115 +178,103 @@ main {
   margin-right: var(--cds-spacing-03);
 }
 
-/* Yeni tam ekran CSS yapısı */
-.chat-content-wrapper {
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 48px); /* Header yüksekliği çıkarılarak tam ekran */
-  background-color: var(--cds-background);
-  padding: var(--cds-spacing-05);
-  position: relative;
-  overflow: hidden;
-}
-
-.notification-wrapper {
+/* Tek Parça Chat Arayüzü Stilleri */
+.chat-container {
   position: fixed;
-  top: 60px;
-  right: 16px;
-  z-index: 1000;
-  max-width: 400px;
-}
-
-.room-info-wrapper {
-  width: 100%;
-  margin-bottom: var(--cds-spacing-05);
-}
-
-.room-info-tile {
-  background-color: var(--cds-layer-01);
-  border-radius: 4px;
-  transition: background-color 110ms;
-}
-
-.room-info-content {
+  top: 48px; /* Header yüksekliği */
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   flex-direction: column;
-  gap: var(--cds-spacing-05);
+  width: 100%;
+  height: calc(100vh - 48px);
+  overflow: hidden;
+  background-color: var(--cds-background);
 }
 
-.room-title {
+.chat-unified-tile {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border-radius: 0;
+  overflow: hidden;
+  background-color: var(--cds-background);
+  box-shadow: none;
+}
+
+.chat-room-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--cds-spacing-03);
+  border-bottom: 1px solid var(--cds-border-subtle-01);
+  background-color: var(--cds-layer-02);
+  flex-wrap: wrap;
+  gap: var(--cds-spacing-03);
+  height: 60px;
+  width: 100%;
+  position: relative;
+  z-index: 50;
+}
+
+.chat-title-container {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: var(--cds-spacing-03);
+  gap: var(--cds-spacing-03);
 }
 
-.room-title h3 {
-  font-size: var(--cds-heading-03);
-  font-weight: 600;
+.chat-title-container h3 {
   margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
 }
 
 .room-link-container {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: var(--cds-spacing-03);
+  flex: 1;
+  width: 100%;
 }
 
 .room-link-input {
   flex: 1;
 }
 
-.messages-wrapper {
+.chat-messages-area {
   flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: calc(100% - 60px - 80px); /* 100% - room-header - input */
   overflow: hidden;
-  margin-bottom: 80px; /* Alt kısımda mesaj gönderme alanı için yer bırak */
+  background-color: var(--cds-background);
 }
 
 .messages-container {
+  width: 100%;
   height: 100%;
   overflow-y: auto;
+  padding: var(--cds-spacing-05);
   display: flex;
-  flex-direction: column;
-  gap: var(--cds-spacing-05);
-  padding: var(--cds-spacing-05);
-  background-color: var(--cds-layer-01);
-  border-radius: 4px;
+  flex-direction: column-reverse;
+  gap: var(--cds-spacing-04);
+  scrollbar-width: thin;
+  scrollbar-color: var(--cds-border-subtle-01) transparent;
 }
 
-.messages-container::-webkit-scrollbar {
-  width: 8px;
-}
-
-.messages-container::-webkit-scrollbar-track {
-  background: var(--cds-layer-01);
-}
-
-.messages-container::-webkit-scrollbar-thumb {
-  background: var(--cds-border-subtle);
-  border-radius: 4px;
-}
-
-.chat-input-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: var(--cds-spacing-05);
-  background-color: var(--cds-background);
-  border-top: 1px solid var(--cds-border-strong-01);
-  z-index: 1000;
-}
-
-.chat-input-container {
+.chat-input-area {
   display: flex;
   gap: var(--cds-spacing-03);
-  background-color: var(--cds-layer-01);
-  border-radius: 4px;
-  padding: var(--cds-spacing-05);
+  padding: var(--cds-spacing-04);
+  background-color: var(--cds-layer-02);
+  border-top: 1px solid var(--cds-border-subtle-01);
+  height: 80px;
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 50;
 }
 
 .message-input {
@@ -292,7 +282,94 @@ main {
 }
 
 .send-button {
-  min-width: 120px;
+  min-width: 100px;
+}
+
+/* Notification styles */
+.notification-wrapper {
+  position: fixed;
+  top: 60px; /* Ana header'ın altında */
+  right: 16px;
+  z-index: 9500; /* En üstte görünmesi için z-index arttırıldı */
+  max-width: 400px;
+  width: auto;
+}
+
+/* Chat mesaj stilleri - Carbon örneğindeki gibi daha yuvarlak ve dengeli */
+.chat-message {
+  display: flex;
+  flex-direction: column;
+  padding: var(--cds-spacing-04);
+  border-radius: 12px;
+  position: relative;
+  max-width: 70%; /* Mesaj balonlarını biraz daha küçülttüm */
+  animation: fadeIn 0.3s ease-in-out;
+  margin-bottom: var(--cds-spacing-03);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.chat-message-mine {
+  align-self: flex-end;
+  background-color: var(--cds-interactive-01);
+  color: white;
+  border-bottom-right-radius: 4px;
+  margin-left: 30%; /* Sağdaki mesaj kenar boşluğunu arttırdım */
+}
+
+.chat-message-others {
+  align-self: flex-start;
+  background-color: var(--cds-layer-02);
+  border-bottom-left-radius: 4px;
+  margin-right: 30%; /* Soldaki mesaj kenar boşluğunu arttırdım */
+}
+
+.chat-message-header {
+  display: flex;
+  align-items: center;
+  gap: var(--cds-spacing-03);
+  margin-bottom: var(--cds-spacing-02);
+}
+
+.chat-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  flex-shrink: 0;
+}
+
+.chat-message-sender {
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.chat-message-text {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.chat-message-timestamp {
+  font-size: 0.75rem;
+  align-self: flex-end;
+  margin-top: var(--cds-spacing-03);
+  opacity: 0.7;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Yükleme ve boş durum stilleri */
+.chat-loading {
+  padding: var(--cds-spacing-05);
+  width: 100%;
 }
 
 .chat-empty {
@@ -300,98 +377,18 @@ main {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   gap: var(--cds-spacing-05);
   padding: var(--cds-spacing-07);
-  text-align: center;
+  margin: auto;
   background-color: var(--cds-layer-01);
-  border-radius: 4px;
-  height: 100%;
+  border: 1px dashed var(--cds-border-subtle-01);
+  border-radius: 8px;
+  max-width: 400px;
 }
 
 .chat-empty-icon {
   color: var(--cds-interactive-01);
-  margin-bottom: var(--cds-spacing-05);
-}
-
-.chat-loading {
-  padding: var(--cds-spacing-05);
-  background-color: var(--cds-layer-01);
-  border-radius: 4px;
-  width: 100%;
-}
-
-.error-notification,
-.copy-notification {
-  position: fixed;
-  top: var(--cds-spacing-06);
-  right: var(--cds-spacing-06);
-  z-index: 1001;
-  animation: slideIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
-/* Ekstra Responsive Düzenlemeler */
-@media (max-width: 768px) {
-  .chat-message {
-    max-width: 90%;
-  }
-  
-  .room-info-content {
-    flex-direction: column;
-  }
-  
-  .room-link-container {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .messages-container {
-    height: calc(100vh - 280px);
-  }
-}
-
-@media (max-width: 480px) {
-  .chat-input-container {
-    flex-direction: column;
-  }
-  
-  .send-button {
-    width: 100%;
-  }
-  
-  .messages-container {
-    height: calc(100vh - 340px);
-  }
-}
-
-/* Dokunmatik Cihazlar İçin */
-@media (hover: none) {
-  .chat-message:hover {
-    transform: none;
-  }
-  
-  .send-button:hover:not(:disabled) {
-    transform: none;
-  }
 }
 
 /* Koyu Mod Uyumluluğu */
@@ -509,6 +506,111 @@ main {
   justify-content: center;
 }
 
+/* Welcome Page Styles */
+.home-page {
+  min-height: 100vh;
+  background-color: var(--cds-background);
+}
+
+.welcome-column {
+  display: flex;
+  justify-content: center;
+  padding: var(--cds-spacing-07);
+}
+
+.welcome-tile {
+  max-width: 800px;
+  padding: var(--cds-spacing-07);
+}
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.welcome-icon {
+  color: var(--cds-interactive-01);
+  margin-bottom: var(--cds-spacing-05);
+  align-self: flex-start;
+}
+
+.welcome-title {
+  margin-bottom: var(--cds-spacing-05);
+  text-align: left;
+  width: 100%;
+}
+
+.welcome-description {
+  margin-bottom: var(--cds-spacing-07);
+  max-width: 600px;
+  text-align: left;
+  width: 100%;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: var(--cds-spacing-05);
+  width: 100%;
+  margin-top: var(--cds-spacing-05);
+}
+
+.welcome-button {
+  min-width: 180px;
+}
+
+.welcome-divider {
+  margin: 0 var(--cds-spacing-03);
+  font-weight: 600;
+  align-self: center;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+/* Responsive styles for welcome page */
+@media (max-width: 672px) {
+  .welcome-actions {
+    flex-direction: column;
+    gap: var(--cds-spacing-05);
+    align-items: flex-start;
+  }
+  
+  .welcome-button {
+    min-width: 240px;
+    width: 100%;
+  }
+  
+  .welcome-divider {
+    margin: var(--cds-spacing-03) 0;
+    align-self: flex-start;
+    padding-left: var(--cds-spacing-05);
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-actions {
+    flex-direction: column;
+    width: 100%;
+    align-items: flex-start;
+  }
+  
+  .welcome-button {
+    width: 100%;
+    min-width: unset;
+  }
+  
+  .welcome-divider {
+    margin: var(--cds-spacing-03) 0;
+    align-self: flex-start;
+    padding-left: var(--cds-spacing-05);
+  }
+}
+
 .landing-column {
   display: flex;
   align-items: center;
@@ -545,511 +647,105 @@ main {
   color: var(--cds-text-01);
 }
 
-/* Chat Room Styles */
+/* Chat Room Styles - Carbon Grid System */
 .chat-grid {
-  width: 100%;
-  max-width: 100%;
-  padding: 0;
-  min-height: 100vh;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chat-room-tile {
-  width: 100%;
-  max-width: 1000px;
-  background-color: var(--cds-ui-01);
   display: flex;
   flex-direction: column;
-  height: 80vh;
-  border-radius: 4px;
-  border: 1px solid var(--cds-border-subtle-01);
-  padding: 0;
-  overflow: hidden;
-}
-
-.chat-room-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: var(--cds-spacing-05);
-  border-bottom: 1px solid var(--cds-border-subtle-01);
-  background-color: var(--cds-ui-02);
-  flex-wrap: wrap;
-  gap: var(--cds-spacing-05);
-}
-
-.chat-title-container {
-  display: flex;
-  align-items: center;
-  gap: var(--cds-spacing-03);
-}
-
-.chat-title {
-  font-size: 1.25rem;
-  font-weight: 400;
-  display: flex;
-  align-items: center;
-  gap: var(--cds-spacing-03);
-  margin: 0;
-}
-
-.chat-title-icon {
-  margin-right: var(--cds-spacing-02);
-}
-
-.chat-link-container {
-  display: flex;
-  align-items: center;
-  gap: var(--cds-spacing-03);
-  flex: 1;
-  max-width: 500px;
-}
-
-.chat-link-input {
   width: 100%;
-}
-
-.chat-messages-container {
-  flex: 1;
-  overflow-y: auto;
-  padding: var(--cds-spacing-05);
-  background-color: var(--cds-ui-01);
-  display: flex;
-  flex-direction: column;
-}
-
-.chat-input-section {
-  display: flex;
-  gap: var(--cds-spacing-03);
-  padding: var(--cds-spacing-05);
-  border-top: 1px solid var(--cds-border-subtle-01);
-  background-color: var(--cds-ui-02);
-}
-
-.chat-message-input {
-  flex: 1;
-}
-
-.chat-notification {
-  margin: var(--cds-spacing-03) var(--cds-spacing-05);
-}
-
-.chat-message {
-  display: flex;
-  flex-direction: column;
-  max-width: 80%;
-  padding: var(--cds-spacing-05);
-  border-radius: 8px;
-  animation: fadeIn 0.3s ease-in-out;
+  height: 100vh;
+  background-color: var(--cds-background);
   position: relative;
-  margin-bottom: var(--cds-spacing-03);
-  transition: transform 0.2s ease;
+  overflow: hidden;
+  padding: 0;
 }
 
-.chat-message:hover {
-  transform: translateY(-2px);
-}
-
-.chat-message-mine {
-  align-self: flex-end;
-  background-color: var(--cds-interactive-01);
-  color: var(--cds-text-on-color);
-  border-bottom-right-radius: 0;
-}
-
-.chat-message-mine::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  right: -8px;
-  width: 0;
-  height: 0;
-  border-left: 8px solid var(--cds-interactive-01);
-  border-top: 8px solid transparent;
-}
-
-.chat-message-others {
-  align-self: flex-start;
-  background-color: var(--cds-layer-02);
-  color: var(--cds-text-01);
-  border-bottom-left-radius: 0;
-}
-
-.chat-message-others::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: -8px;
-  width: 0;
-  height: 0;
-  border-right: 8px solid var(--cds-layer-02);
-  border-top: 8px solid transparent;
-}
-
-.chat-message-header {
-  display: flex;
-  align-items: center;
-  gap: var(--cds-spacing-03);
-  margin-bottom: var(--cds-spacing-03);
-}
-
-.chat-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #fff;
-  font-size: 14px;
-}
-
-.chat-message-sender {
-  font-weight: 600;
-  font-size: 0.875rem;
-}
-
-.chat-message-text {
-  word-break: break-word;
-  margin-bottom: var(--cds-spacing-03);
-  line-height: 1.5;
-}
-
-.chat-message-timestamp {
-  font-size: 0.75rem;
-  opacity: 0.7;
-  align-self: flex-end;
-}
-
-.chat-input-column {
-  margin-bottom: var(--cds-spacing-03);
-}
-
-.chat-input-tile {
-  padding: var(--cds-spacing-05);
-  background-color: var(--cds-ui-01);
-  border-top: 1px solid var(--cds-border-subtle-01);
-}
-
-.chat-input-section {
-  display: flex;
-  gap: var(--cds-spacing-03);
-}
-
-.chat-message-input {
-  flex: 1;
-}
-
-.send-button {
-  transition: background-color var(--cds-motion-fast-01), transform 0.1s ease;
-}
-
-.send-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.chat-loading, .chat-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  height: 200px;
-  padding: var(--cds-spacing-05);
-  margin: auto 0;
-  gap: var(--cds-spacing-05);
-  color: var(--cds-text-02);
-  animation: fadeIn 0.3s ease-out;
-}
-
-.chat-notification {
-  margin-bottom: var(--cds-spacing-05);
-}
-
-.copy-success-notification {
-  position: fixed;
-  top: var(--cds-spacing-05);
-  right: var(--cds-spacing-05);
-  z-index: 1000;
-}
-
-/* Animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Yeni Sade Landing Page Stilleri */
-.home-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #161616;
-  padding: 20px;
-}
-
-.chat-simple-container {
-  max-width: 600px;
-  width: 100%;
-  padding: 40px;
-  background-color: #262626;
-  border-radius: 4px;
-  text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-}
-
-.chat-simple-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-}
-
-.chat-logo {
-  width: 48px;
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #0f62fe;
-  margin-bottom: 10px;
-}
-
-.chat-title {
-  font-size: 28px;
-  font-weight: 400;
-  color: #f4f4f4;
-  margin: 0;
-}
-
-.chat-description {
-  color: #c6c6c6;
-  font-size: 16px;
-  line-height: 1.5;
-  margin: 0 0 20px;
-  max-width: 480px;
-}
-
-.chat-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 20px;
-}
-
-.chat-button {
-  min-width: 140px;
-}
-
-@media (max-width: 600px) {
-  .chat-simple-container {
-    padding: 30px 20px;
-  }
-  
-  .chat-actions {
+/* Carbon breakpoint'lerine göre responsive düzenlemeler */
+@media (max-width: 1056px) {
+  .chat-room-header {
     flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    padding: var(--cds-spacing-03);
+  }
+  
+  .room-link-container {
     width: 100%;
+    margin-top: var(--cds-spacing-03);
+    max-width: none;
   }
   
-  .chat-button {
+  .notification-wrapper {
+    max-width: 300px;
+  }
+  
+  .chat-messages-area {
+    height: calc(100% - 104px - 80px); /* 104px (genişletilmiş room header) + 80px (input) */
+  }
+}
+
+@media (max-width: 672px) {
+  .chat-input-area {
+    flex-direction: column;
+    padding: var(--cds-spacing-03);
+    height: 120px;
+  }
+  
+  .send-button {
     width: 100%;
-  }
-}
-
-/* Ana Sayfa Stilleri - Carbon Gray 100 Tema */
-.home-page {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
-  background-color: var(--cds-background);
-  overflow-x: hidden;
-}
-
-.home-header {
-  background-color: var(--cds-background);
-  border-bottom: 1px solid var(--cds-border-strong-01);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-}
-
-.home-grid {
-  min-height: calc(100vh - 48px); /* Tam ekran eksi header yüksekliği */
-  padding: var(--cds-spacing-05); /* Padding değerini azalttım, önceden var(--cds-spacing-07) idi */
-  display: flex;
-  align-items: center;
-}
-
-.welcome-column {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.welcome-tile {
-  background-color: var(--cds-layer-01);
-  padding: var(--cds-spacing-05); /* Padding değerini azalttım, önceden var(--cds-spacing-07) idi */
-  border-radius: 4px;
-  transition: background-color 110ms;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  max-width: 550px; /* Kartın maksimum genişliğini sınırlandırdım */
-  margin: 0 auto; /* Kartı yatay olarak ortala */
-}
-
-.welcome-content {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cds-spacing-05); /* Boşluk değerini azalttım, önceden var(--cds-spacing-06) idi */
-}
-
-.welcome-icon {
-  color: var(--cds-interactive-01);
-  margin-bottom: var(--cds-spacing-03);
-}
-
-.welcome-title {
-  font-size: 1.75rem; /* Başlık boyutunu azalttım, önceden 2rem idi */
-  font-weight: 400;
-  margin-bottom: var(--cds-spacing-03); /* Boşluğu azalttım, önceden var(--cds-spacing-05) idi */
-}
-
-.welcome-description {
-  font-size: 1rem;
-  line-height: 1.5;
-  margin-bottom: var(--cds-spacing-05); /* Boşluğu azalttım, önceden var(--cds-spacing-06) idi */
-  color: var(--cds-text-02);
-  max-width: 550px;
-}
-
-.welcome-actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--cds-spacing-04); /* Boşluğu azalttım, önceden var(--cds-spacing-05) idi */
-  margin-top: var(--cds-spacing-04); /* Boşluğu azalttım, önceden var(--cds-spacing-05) idi */
-}
-
-.welcome-button {
-  width: 100%;
-  max-width: 300px;
-  transition: transform 110ms ease, background-color 110ms ease;
-}
-
-.welcome-button:hover {
-  transform: translateY(-2px);
-}
-
-.welcome-divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: var(--cds-text-02);
-  margin: var(--cds-spacing-03) 0;
-}
-
-.welcome-divider::before,
-.welcome-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--cds-border-subtle-01);
-}
-
-.welcome-divider::before {
-  margin-right: var(--cds-spacing-03);
-}
-
-.welcome-divider::after {
-  margin-left: var(--cds-spacing-03);
-}
-
-.features-column {
-  display: flex;
-  flex-direction: column;
-}
-
-.features-tile {
-  background-color: var(--cds-layer-01);
-  padding: var(--cds-spacing-07);
-  border-radius: 4px;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.features-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  margin-bottom: var(--cds-spacing-06);
-  color: var(--cds-text-01);
-}
-
-.features-list {
-  list-style-position: inside;
-  padding-left: var(--cds-spacing-03);
-}
-
-.features-list li {
-  margin-bottom: var(--cds-spacing-05);
-  line-height: 1.5;
-  color: var(--cds-text-02);
-}
-
-.modal-description {
-  margin-bottom: var(--cds-spacing-05);
-  color: var(--cds-text-02);
-}
-
-/* Responsive Ana Sayfa */
-@media (min-width: 768px) {
-  .welcome-actions {
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--cds-spacing-05);
+    margin-top: var(--cds-spacing-03);
+    min-width: unset;
   }
   
-  .welcome-divider {
-    margin: 0 var(--cds-spacing-05);
+  .messages-container {
+    padding: var(--cds-spacing-03);
+  }
+  
+  .chat-messages-area {
+    height: calc(100% - 104px - 120px); /* 104px (room header) + 120px (genişletilmiş input) */
+  }
+  
+  .chat-message {
+    max-width: 85%; /* Mobilde mesajlar daha geniş olabilir */
+  }
+  
+  .chat-message-mine {
+    margin-left: 15%;
+  }
+  
+  .chat-message-others {
+    margin-right: 15%;
   }
 }
 
-@media (max-width: 768px) {
-  .home-grid {
-    padding: var(--cds-spacing-05);
+@media (max-width: 320px) {
+  .chat-container {
+    top: 48px;
+    height: calc(100vh - 48px);
   }
   
-  .welcome-title {
-    font-size: 1.5rem;
+  .chat-unified-tile {
+    border-radius: 0;
+    box-shadow: none;
   }
   
-  .features-tile {
-    margin-top: var(--cds-spacing-06);
+  .chat-room-header, .chat-input-area {
+    padding: var(--cds-spacing-02);
+  }
+  
+  .messages-container {
+    padding: var(--cds-spacing-02);
+  }
+  
+  .chat-message {
+    max-width: 90%;
+    padding: var(--cds-spacing-03);
+  }
+  
+  .chat-message-mine {
+    margin-left: 10%;
+  }
+  
+  .chat-message-others {
+    margin-right: 10%;
   }
 }
-
-@media (max-width: 480px) {
-  .welcome-title {
-    font-size: 1.25rem;
-  }
-  
-  .welcome-actions {
-    gap: var(--cds-spacing-05);
-  }
-  
-  .welcome-button {
-    max-width: 100%;
-  }
-} 
