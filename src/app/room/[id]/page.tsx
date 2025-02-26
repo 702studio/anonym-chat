@@ -14,10 +14,13 @@ import {
   HeaderGlobalAction,
   HeaderGlobalBar,
   Tile,
-  SkeletonText,
-  Grid,
-  Column,
-  Content
+  Tabs,
+  Tab,
+  TabList,
+  TabPanels,
+  TabPanel,
+  ContentSwitcher,
+  Switch
 } from '@carbon/react';
 import { 
   Copy, 
@@ -25,9 +28,12 @@ import {
   ChatBot,
   Information,
   UserAvatar,
-  ArrowLeft
+  ArrowLeft,
+  FolderDetails,
+  Share
 } from '@carbon/icons-react';
 import { database } from '@/lib/firebase';
+import ChatMessage from '@/components/ChatMessage';
 
 interface Message {
   id: string;
@@ -37,10 +43,11 @@ interface Message {
 }
 
 export default function RoomPage() {
-  const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [nickname, setNickname] = useState('');
-  const [roomLink, setRoomLink] = useState('');
+  const [message, setMessage] = useState<string>('');
+  const [messages, setMessages] = useState<any[]>([]);
+  const [nickname, setNickname] = useState<string>('');
+  const [roomLink, setRoomLink] = useState<string>('');
+  const [userId, setUserId] = useState<string>('');
   const [copySuccess, setCopySuccess] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +106,14 @@ export default function RoomPage() {
     }
     
     setNickname(urlNickname);
+
+    // Kullanıcı için benzersiz ID oluştur veya varolan ID'yi al
+    let currentUserId = localStorage.getItem(`anonymChat_userId_${roomId}`);
+    if (!currentUserId) {
+      currentUserId = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      localStorage.setItem(`anonymChat_userId_${roomId}`, currentUserId);
+    }
+    setUserId(currentUserId);
     
     // Oda linkini oluştur
     try {
@@ -136,19 +151,20 @@ export default function RoomPage() {
         
         // Test bağlantısı yapalım
         try {
-          console.log("[Firebase] Test bağlantısı kontrol ediliyor...");
+          console.log("[Firebase] %cTest bağlantısı kontrol ediliyor...", "color: blue; font-weight: bold");
           const testRef = ref(database, '.info/connected');
           
-          // 10 saniye içinde bağlantı kurulamazsa hata ver
+          // 5 saniye içinde bağlantı kurulamazsa hata ver (timeout süresini düşürdük)
           const timeoutPromise = new Promise((_, reject) => {
-            setTimeout(() => reject(new Error("Bağlantı zaman aşımı")), 10000);
+            setTimeout(() => reject(new Error("Bağlantı zaman aşımı (5 saniye)")), 5000);
           });
           
           const connectionPromise = new Promise((resolve) => {
-            const unsub = onValue(testRef, (snapshot) => {
+            let unsub: (() => void) | undefined; // undefined olarak başlat
+            unsub = onValue(testRef, (snapshot) => {
               if (snapshot.val() === true) {
-                console.log("[Firebase] Test bağlantısı başarılı!");
-                unsub();
+                console.log("[Firebase] %c✅ Test bağlantısı başarılı!", "color: green; font-weight: bold");
+                if (unsub) unsub(); // null check ekle
                 resolve(true);
               }
             });
@@ -157,13 +173,16 @@ export default function RoomPage() {
           // Yarış koşulu - hangisi önce gerçekleşirse
           await Promise.race([connectionPromise, timeoutPromise])
             .catch(error => {
-              console.error("[Firebase] Test bağlantısı başarısız:", error);
+              console.error("[Firebase] %c❌ Test bağlantısı başarısız:", "color: red; font-weight: bold", error);
               throw new Error("Firebase bağlantı testi başarısız: " + error.message);
             });
+            
+          // Bağlantı başarılı olduysa
+          setConnectionStatus('bağlı');
         } catch (testError) {
-          console.error("[Firebase] Test bağlantı hatası:", testError);
+          console.error("[Firebase] %c❌ Test bağlantı hatası:", "color: red; font-weight: bold", testError);
           if (retry < maxRetries) {
-            console.log(`[Firebase] Test bağlantısı başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`);
+            console.log(`[Firebase] %c🔄 Test bağlantısı başarısız, yeniden deneniyor (${retry + 1}/${maxRetries})...`, "color: orange; font-weight: bold");
             setTimeout(() => fetchMessages(retry + 1), 2000);
             return;
           }
@@ -325,44 +344,40 @@ export default function RoomPage() {
     }
   }, [messages]);
 
-  const handleSendMessage = () => {
-    if (message.trim() === '' || !messagesRef.current) return;
+  const handleSendMessage = async () => {
+    if (message.trim() === '' || sendingMessage) return;
     
-    // Gönderilecek mesaj içeriğini kaydet ve formu temizle
-    const messageText = message.trim();
-    setMessage('');
-    
-    setSendingMessage(true);
-    const newMessageRef = push(messagesRef.current);
-    
-    const newMessage = {
-      sender: nickname,
-      text: messageText,
-      timestamp: Date.now()
-    };
-    
-    console.log("Mesaj gönderiliyor:", newMessage);
-    
-    set(newMessageRef, newMessage)
-    .then(() => {
-      console.log("Mesaj başarıyla gönderildi:", newMessage);
-      setSendingMessage(false);
+    try {
+      setSendingMessage(true);
       
-      // Gönderilen mesaj sonrası aşağı kaydırma (column-reverse için düzenlendi)
-      setTimeout(() => {
-        const messagesContainer = document.querySelector('.messages-container');
-        if (messagesContainer) {
-          messagesContainer.scrollTop = 0;
-        }
-      }, 100);
-    })
-    .catch((error) => {
-      console.error("Mesaj gönderme hatası:", error);
-      setError("Mesaj gönderilemedi: " + error.message);
+      if (!database) {
+        throw new Error("Firebase bağlantısı kurulamadı. Mesaj gönderilemiyor.");
+      }
+      
+      // Yeni mesaj referansı oluştur
+      if (!messagesRef.current) {
+        messagesRef.current = ref(database, `rooms/${roomId}/messages`);
+      }
+      
+      const newMessageRef = push(messagesRef.current);
+      const messageData = {
+        sender: nickname,
+        senderId: userId,
+        text: message,
+        timestamp: Date.now()
+      };
+      
+      // Mesajı veritabanına yaz
+      await set(newMessageRef, messageData);
+      
+      // Input'u temizle
+      setMessage('');
+    } catch (err) {
+      console.error("Mesaj gönderme hatası:", err);
+      setError(`Mesaj gönderilirken bir hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
+    } finally {
       setSendingMessage(false);
-      // Mesaj gönderilemediğinde, kullanıcıya yazdığı mesajı geri verelim
-      setMessage(messageText);
-    });
+    }
   };
 
   const handleCopyLink = () => {
@@ -391,7 +406,12 @@ export default function RoomPage() {
     if (loading && messages.length === 0) {
       return (
         <div className="chat-loading">
-          <SkeletonText heading width="100%" lineCount={3} />
+          <InlineLoading 
+            status="active" 
+            iconDescription="Mesajlar yükleniyor" 
+            description="Mesajlar yükleniyor..." 
+            className="chat-loading-indicator"
+          />
         </div>
       );
     }
@@ -409,31 +429,16 @@ export default function RoomPage() {
     return [...messages]
       .reverse()
       .map((msg) => (
-        <div 
-          key={msg.id} 
-          className={`chat-message ${msg.sender === nickname ? 'chat-message-mine' : 'chat-message-others'}`}
-        >
-          <div className="chat-message-header">
-            {msg.sender !== nickname && (
-              <div 
-                className="chat-avatar" 
-                style={{ backgroundColor: getUserColor(msg.sender) }}
-                aria-label={`${msg.sender} avatarı`}
-              >
-                {getInitial(msg.sender)}
-              </div>
-            )}
-            <div className="chat-message-sender">
-              {msg.sender === nickname ? 'Siz' : msg.sender}
-            </div>
-          </div>
-          <div className="chat-message-text">
-            {msg.text}
-          </div>
-          <div className="chat-message-timestamp">
-            {new Date(msg.timestamp).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
-          </div>
-        </div>
+        <ChatMessage 
+          key={msg.id}
+          id={msg.id}
+          text={msg.text}
+          sender={msg.sender}
+          timestamp={msg.timestamp}
+          isCurrentUser={msg.senderId ? msg.senderId === userId : msg.sender === nickname}
+          getUserColor={getUserColor}
+          getInitial={getInitial}
+        />
       ));
   };
 
@@ -441,7 +446,7 @@ export default function RoomPage() {
     <div className="cds--g100 chat-page" data-carbon-theme="g100">
       {/* Ana Header - Sabit Başlık */}
       <Header aria-label="Anonim Chat" className="chat-header">
-        <HeaderName prefix="">
+        <HeaderName prefix="" className="chat-header-name">
           <Button
             kind="ghost"
             renderIcon={ArrowLeft}
@@ -451,19 +456,45 @@ export default function RoomPage() {
             className="back-button"
             onClick={goToHome}
           />
-          <ChatBot size={20} /> Anonim Chat 
-          <Tag className="room-tag" type="blue">Oda: {roomId}</Tag>
+          <span className="app-title"><ChatBot size={20} /> Anonim Chat</span>
         </HeaderName>
         
+        <div className="chat-tabs-container">
+          <Tabs>
+            <TabList aria-label="Oda sekmeleri">
+              <Tab className="room-tab">
+                <div className="room-tab-content">
+                  <FolderDetails size={16} />
+                  <span>{roomId}</span>
+                </div>
+              </Tab>
+            </TabList>
+          </Tabs>
+        </div>
+        
         <HeaderGlobalBar>
-          <HeaderGlobalAction
-            aria-label="Bağlantı Durumu"
-            isActive={false}
-          >
-            <Tag type={connectionStatus.includes('hata') ? 'red' : connectionStatus.includes('bağlanıyor') ? 'purple' : 'green'} className="status-tag">
-              {connectionStatus}
-            </Tag>
-          </HeaderGlobalAction>
+          {connectionStatus.includes('bağlanıyor') ? (
+            <InlineLoading 
+              status="active" 
+              iconDescription="Bağlanıyor" 
+              description={connectionStatus} 
+              className="connection-status-loading"
+            />
+          ) : (
+            <div className="connection-status">
+              <span 
+                className={`connection-dot ${
+                  connectionStatus.includes('hata') ? 'error' : 
+                  connectionStatus === 'bağlı' || connectionStatus.includes('bağlı') ? 'connected' : 
+                  'connecting'
+                }`}
+              />
+              <span className="connection-text">{
+                connectionStatus.includes('mesaj') ? 
+                  connectionStatus.match(/\((\d+) mesaj\)/)?.[1] || '' : ''
+              }</span>
+            </div>
+          )}
         </HeaderGlobalBar>
       </Header>
       
@@ -493,29 +524,35 @@ export default function RoomPage() {
         </div>
       )}
       
-      {/* Ana Chat Container - Full Screen Layout */}
+      {/* Ana Chat Container - Genişliği Kontrollü */}
       <div className="chat-container">
         <div className="chat-unified-tile">
           {/* Oda Bilgisi - Sabit Üst Kısım */}
           <div className="chat-room-header">
-            <div className="room-link-container">
-              <TextInput
-                id="room-link"
-                labelText="Oda bağlantısı"
-                value={roomLink}
-                readOnly
-                light
-                size="sm"
-                className="room-link-input"
-              />
-              <Button 
-                hasIconOnly 
-                renderIcon={Copy} 
-                iconDescription="Kopyala" 
-                onClick={handleCopyLink}
-                kind="primary"
-                size="sm"
-              />
+            <div className="room-share-container">
+              <div className="room-link-compact">
+                <span className="room-link-label">
+                  <Share size={16} />
+                </span>
+                <TextInput
+                  id="room-link"
+                  labelText="Oda bağlantısı"
+                  hideLabel
+                  value={roomLink}
+                  readOnly
+                  light
+                  size="sm"
+                  className="room-link-input"
+                />
+                <Button 
+                  hasIconOnly 
+                  renderIcon={Copy} 
+                  iconDescription="Kopyala" 
+                  onClick={handleCopyLink}
+                  kind="primary"
+                  size="sm"
+                />
+              </div>
             </div>
           </div>
           
@@ -528,27 +565,30 @@ export default function RoomPage() {
           
           {/* Mesaj Gönderme Alanı - Sabit Altta */}
           <div className="chat-input-area">
-            <TextInput
-              id="message-input"
-              labelText="Mesaj"
-              hideLabel
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Mesajınızı yazın..."
-              onKeyDown={handleKeyDown}
-              size="lg"
-              className="message-input"
-            />
-            <Button 
-              renderIcon={Send} 
-              onClick={handleSendMessage} 
-              disabled={sendingMessage || message.trim() === ''}
-              kind="primary"
-              size="lg"
-              className="send-button"
-            >
-              {sendingMessage ? 'Gönderiliyor...' : 'Gönder'}
-            </Button>
+            <div className="message-input-group">
+              <TextInput
+                id="message-input"
+                labelText="Mesaj"
+                hideLabel
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Mesajınızı yazın..."
+                onKeyDown={handleKeyDown}
+                size="lg"
+                className="message-input"
+                disabled={sendingMessage || connectionStatus.includes('hata')}
+              />
+              <Button 
+                renderIcon={Send} 
+                onClick={handleSendMessage} 
+                disabled={sendingMessage || message.trim() === '' || connectionStatus.includes('hata')}
+                kind="primary"
+                size="lg"
+                className="send-button"
+                iconDescription="Mesaj gönder"
+                hasIconOnly
+              />
+            </div>
           </div>
         </div>
       </div>
