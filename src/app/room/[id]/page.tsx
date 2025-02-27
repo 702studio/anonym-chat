@@ -358,10 +358,29 @@ export default function RoomPage() {
       setMessage('');
       
       // Mesaj gönderildikten sonra input alanına odaklanma
-      const inputElement = document.getElementById('message-input');
-      if (inputElement) {
-        inputElement.focus();
-      }
+      // Daha güçlü bir odaklama çözümü için 2 farklı yöntem ve daha uzun gecikme
+      const focusInput = () => {
+        const inputElement = document.getElementById('message-input');
+        if (inputElement) {
+          // Direkt fokus
+          inputElement.focus();
+          
+          // Alternatif yöntem - HTML input elementine özel odaklama
+          if (inputElement instanceof HTMLInputElement) {
+            inputElement.blur();  // Önce odağı kaldır
+            inputElement.focus(); // Sonra tekrar odaklan
+          }
+        }
+      };
+      
+      // İlk hemen dene
+      focusInput();
+      
+      // Ardından kısa bir gecikme ile tekrar dene (10ms)
+      setTimeout(focusInput, 10);
+      
+      // Son olarak daha uzun bir gecikme ile dene (bazı tarayıcılarda gerekebilir)
+      setTimeout(focusInput, 100);
     } catch (err) {
       console.error("Mesaj gönderme hatası:", err);
       setError(`Mesaj gönderilirken bir hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
