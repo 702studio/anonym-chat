@@ -325,8 +325,8 @@ main {
   border-left-color: #4589ff; /* Blue 50 - Tüm diğer kullanıcılar için aynı renk */
   margin-right: auto;
   max-width: calc(100% - 30%);
-  background-color: #f4f4f4; /* Gray 10 - Layer 01 in light theme */
-  color: #161616; /* Gray 100 - Text 01 in light theme */
+  background-color: #262626; /* Gray 90 - Layer 01 - Sizin mesajlarınızla aynı arka plan */
+  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesajlarınızla aynı metin rengi */
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -415,7 +415,7 @@ main {
 }
 
 .chat-message-others .chat-message-sender {
-  color: #161616; /* Gray 100 - Text 01 in light theme */
+  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesaj stiliniz ile aynı */
 }
 
 /* Mesaj metni stilleri */
@@ -424,7 +424,7 @@ main {
 }
 
 .chat-message-others .chat-message-text {
-  color: #161616; /* Gray 100 - Text 01 in light theme */
+  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesaj stiliniz ile aynı */
 }
 
 /* Zaman damgası stilleri */
@@ -433,7 +433,7 @@ main {
 }
 
 .chat-message-others .chat-message-timestamp {
-  color: #525252; /* Gray 70 - Text 02 in light theme */
+  color: #c6c6c6; /* Gray 40 - Text 02 - Sizin mesaj stiliniz ile aynı */
 }
 
 /* Koyu Mod Uyumluluğu */
@@ -443,18 +443,18 @@ main {
 }
 
 .cds--g100 .chat-message-others {
-  background-color: #f4f4f4; /* Gray 10 - Layer 01 in light theme */
-  color: #161616; /* Gray 100 - Text 01 in light theme */
-  border-left-color: #78a9ff; /* Blue 40 - Interactive 02 */
+  background-color: #262626; /* Gray 90 - Layer 01 - Sizin mesaj stiliniz ile aynı */
+  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesaj stiliniz ile aynı */
+  border-left-color: #4589ff; /* Blue 50 - Highlight 01 */
 }
 
 .cds--g100 .chat-message-others .chat-message-sender {
-  color: #161616; /* Gray 100 - Text 01 in light theme */
+  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesaj stiliniz ile aynı */
   font-weight: 500;
 }
 
 .cds--g100 .chat-message-others .chat-message-timestamp {
-  color: #525252; /* Gray 70 - Text 02 in light theme */
+  color: #c6c6c6; /* Gray 40 - Text 02 - Sizin mesaj stiliniz ile aynı */
 }
 
 /* Input bileşeni için ek stiller */

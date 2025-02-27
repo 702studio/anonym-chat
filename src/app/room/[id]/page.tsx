@@ -356,6 +356,12 @@ export default function RoomPage() {
       
       // Input'u temizle
       setMessage('');
+      
+      // Mesaj gönderildikten sonra input alanına odaklanma
+      const inputElement = document.getElementById('message-input');
+      if (inputElement) {
+        inputElement.focus();
+      }
     } catch (err) {
       console.error("Mesaj gönderme hatası:", err);
       setError(`Mesaj gönderilirken bir hata oluştu: ${err instanceof Error ? err.message : 'Bilinmeyen hata'}`);
