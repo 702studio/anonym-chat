@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/anonym_chat",
+      "destination": "/"
+    },
+    {
+      "source": "/anonym_chat/:path*",
+      "destination": "/:path*"
+    }
+  ]
+} 
