@@ -443,9 +443,9 @@ main {
 }
 
 .cds--g100 .chat-message-others {
-  background-color: #262626; /* Gray 90 - Layer 01 - Sizin mesaj stiliniz ile aynı */
-  color: #f4f4f4; /* Gray 10 - Text 01 - Sizin mesaj stiliniz ile aynı */
-  border-left-color: #4589ff; /* Blue 50 - Highlight 01 */
+  background-color: #262626; /* Gray 90 - Layer 01 */
+  color: #f4f4f4; /* Gray 10 - Text 01 */
+  border-left-color: #0f62fe; /* Blue 60 - Interactive 01 - Sizin mesaj stiliniz ile aynı */
 }
 
 .cds--g100 .chat-message-others .chat-message-sender {
