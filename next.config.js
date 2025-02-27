@@ -2,7 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
-  basePath: '/anonym_chat', // Alt klasörde çalışması için yol tanımlaması
+  // Alt domain (subdomain) kullanıldığı için basePath'e gerek kalmadı
+  // basePath: '/anonym_chat', 
   // Basit ama etkili yapılandırma
   webpack: (config, { isServer, dev }) => {
     // Fast Refresh ve Hot Reloading için webpack yapılandırması

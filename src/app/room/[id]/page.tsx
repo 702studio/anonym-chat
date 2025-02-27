@@ -247,7 +247,7 @@ export default function RoomPage() {
                 if (lastMessage.sender !== nickname) {
                   try {
                     // Basit ses bildirimi
-                    const audio = new Audio('/anonym_chat/sounds/message.mp3');
+                    const audio = new Audio('/sounds/message.mp3');
                     audio.volume = 0.5;
                     audio.play().catch(e => console.log('[Firebase] Ses çalma hatası:', e));
                   } catch (audioError) {
